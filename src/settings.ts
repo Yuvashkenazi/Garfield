@@ -1,5 +1,5 @@
-import _config from '../config.testing.json';
-// import _config from '../config.json';
+import _config from '../config.json';
+// import _config from '../config.testing.json';
 
 export interface Config {
     clientId: string;
