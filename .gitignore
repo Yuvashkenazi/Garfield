@@ -1,16 +1,16 @@
 # vs code debugging
-.vscode
+/.vscode
 
 # config files
 config.json
 config.testing.json
 
 # package dependencies
-node_modules
+/node_modules
 
 # dist folder
-dist
+/dist
 
 # test data folder
-data
-mimamu
+/data
+/mimamu

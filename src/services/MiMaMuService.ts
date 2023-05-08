@@ -280,8 +280,8 @@ export async function addMiMaMuPrompt({ interaction, answer }: { interaction: Ch
         collectedInteraction.awaitModalSubmit({ filter, time: MODAL_TIMEOUT })
             .then(async interaction => {
                 const fields = interaction.fields;
-                const imgSelected = fields.getTextInputValue(customIds.imgSelect).toUpperCase();
-                const prompt = fields.getTextInputValue(customIds.promptCreate);
+                const imgSelected = fields.getTextInputValue(customIds.imgSelectId).toUpperCase();
+                const prompt = fields.getTextInputValue(customIds.promptCreateId);
                 const splitPrompt = prompt.split(' ').filter(x => x !== '');
                 const splitAnswer = answer.split(' ').filter(x => x !== '');
                 const errors: string[] = [];
