@@ -7,7 +7,7 @@ export const customIds = {
 
 export function MiMaMuGuessModal() {
     const guessInput = new TextInputBuilder()
-        .setLabel('')
+        .setLabel('Enter guess')
         .setCustomId(customIds.guessInputId)
         .setMaxLength(1000)
         .setRequired(true)

@@ -6,7 +6,10 @@ import { logger } from '../utils/LoggingHelper.js';
 const PROMPT_LIMIT = 30;
 
 export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Promise<MiMaMuModel[]> {
-  return await MiMaMu.findAll({ where: { isActive: true }, order: [orderBy] })
+  return await MiMaMu.findAll({
+    where: { isActive: true },
+    order: [Sequelize.fn('lower', Sequelize.col(orderBy))]
+  })
     .then(data => data.map(x => x.toJSON()))
     .catch(err => {
       logger.error(err);
