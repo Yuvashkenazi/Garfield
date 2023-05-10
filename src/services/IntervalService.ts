@@ -8,7 +8,6 @@ import { sendComicVote } from "../services/VoteService.js";
 import { birthdayCheck } from "../services/BirthdayService.js";
 import { sendWord } from "../services/RandomWordService.js";
 import { nextManga } from "../services/MangaService.js";
-import { downloadFarSide } from "../services/FarSideService.js";
 import { checkTemp } from "../services/TemperatureService.js";
 import { playMiMaMu, resetMiMaMu, deleteDeactivatedImages } from "./MiMaMuService.js";
 
@@ -65,8 +64,6 @@ async function onInterval() {
     }
 
     if (currentHrMin === '8:00 am') {
-        downloadFarSide();
-
         const temp = await checkTemp();
 
         client.theSpamChannelID.send(`My temp: ${temp.main.toFixed(2)}°C`);
