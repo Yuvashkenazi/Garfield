@@ -2,6 +2,7 @@ import { Collection, GatewayIntentBits } from 'discord.js';
 import { CustomClient } from './extensions/CustomClient.js';
 import { config } from './settings.js';
 import process from 'process';
+import { isDevEnv } from './utils/Common.js';
 import { logger } from './utils/LoggingHelper.js';
 
 export const client = new CustomClient({
@@ -19,8 +20,10 @@ export const client = new CustomClient({
 });
 
 (async () => {
+  logger.info(`Environment: ${isDevEnv() ? 'DEV' : 'PROD'}`);
+
   if (process.setuid) {
-    logger.info('Setting user id...');
+    logger.info('Setting bot process user id...');
 
     process.setuid(1000);
   }

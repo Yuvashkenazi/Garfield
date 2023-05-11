@@ -18,11 +18,13 @@ export async function generateImage({ prompt, n }: { prompt: string, n: number }
         logger.error(error);
     });
 
-    if (!response) return;
-
-    return {
-        data: response?.data?.data ?? [],
-        error: response?.status !== 200 ? error : '',
+    return !response ? {
+        data: [],
+        error: error,
+        created: 0
+    } : {
+        data: response.data?.data ?? [],
+        error: response.status !== 200 ? error : '',
         created: 0
     };
 }

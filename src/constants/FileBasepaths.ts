@@ -3,5 +3,6 @@ export enum FileBasePaths {
     Events = 'events',
     Data = 'data',
     FarSide = 'farside',
-    MiMaMu = 'mimamu'
+    MiMaMu = 'mimamu',
+    Logs = 'logs'
 }

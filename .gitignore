@@ -17,3 +17,4 @@ deploy-commands.js
 # test data folder
 /data
 /mimamu
+/logs

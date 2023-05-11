@@ -1,5 +1,16 @@
 import pino from 'pino';
+import pretty from 'pino-pretty';
+import { createWriteStream } from 'fs'
+import { getFilePath } from '../repository/FileRepo';
 import { isDevEnv } from './Common';
+import { FileBasePaths } from '../constants/FileBasepaths';
+
+const LOG_FILE_DESTINATION = getFilePath(FileBasePaths.Logs, 'filename.log');
+
+const streams = [
+    { stream: pretty() },
+    { stream: createWriteStream(LOG_FILE_DESTINATION) },
+];
 
 export const logger = isDevEnv() ?
     console :
@@ -9,12 +20,4 @@ export const logger = isDevEnv() ?
                 return { level: label };
             },
         },
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                ignore: 'pid,hostname',
-                translateTime: 'yyyy-mm-dd HH:MM:ss.l',
-            },
-        }
-    });
+    }, pino.multistream(streams));

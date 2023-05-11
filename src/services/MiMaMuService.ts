@@ -178,8 +178,9 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
         newlyFound.every(x => wordsLeft.includes(x)));
 
     if (won) {
-        const isGuessPlural = dailyMiMaMuGuessCount > 1;
-        await client.mimamuChannelId.send({ content: `${at(userId)} solved MiMaMu #${MiMaMuNumber - 1} in ${dailyMiMaMuGuessCount} ${isGuessPlural ? 'guesses' : 'guess'}!` });
+        const incrementedGuessCount = dailyMiMaMuGuessCount + 1;
+        const isGuessPlural = incrementedGuessCount > 1;
+        await client.mimamuChannelId.send({ content: `${at(userId)} solved MiMaMu #${MiMaMuNumber - 1} in ${incrementedGuessCount} ${isGuessPlural ? 'guesses' : 'guess'}!` });
     }
 
     return won ?

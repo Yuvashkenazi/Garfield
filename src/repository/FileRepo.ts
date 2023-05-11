@@ -1,6 +1,7 @@
 import { PathLike, readdirSync, unlinkSync } from 'fs';
 import fs from 'fs/promises';
 import { sep, basename, join, resolve } from 'path';
+import { FileBasePaths } from '../constants/FileBasepaths.js';
 import { isDevEnv } from '../utils/Common.js';
 import { logger } from '../utils/LoggingHelper.js';
 
@@ -68,7 +69,7 @@ export function deleteFile(filePath: PathLike): void {
     return unlinkSync(filePath);
 }
 
-export function getFilePath(basePath: string, fileName = ''): string {
+export function getFilePath(basePath: FileBasePaths, fileName = ''): string {
     return isDevEnv() ?
         join(resolve(), basePath, fileName) :
         join(sep, 'usr', 'src', DOCKER_VOLUME_PATH, basePath, fileName);
