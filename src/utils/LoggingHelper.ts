@@ -5,7 +5,7 @@ import { getFilePath } from '../repository/FileRepo';
 import { isDevEnv } from './Common';
 import { FileBasePaths } from '../constants/FileBasepaths';
 
-const LOG_FILE_DESTINATION = getFilePath(FileBasePaths.Logs, 'filename.log');
+const LOG_FILE_DESTINATION = getFilePath(FileBasePaths.Logs, 'garfield.log');
 
 const streams = [
     { stream: pretty() },
