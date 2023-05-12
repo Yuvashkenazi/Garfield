@@ -3,8 +3,6 @@ import { MiMaMu } from './DatabaseRepo.js';
 import { MiMaMuModel } from '../models/index.js';
 import { logger } from '../utils/LoggingHelper.js';
 
-const PROMPT_LIMIT = 30;
-
 export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Promise<MiMaMuModel[]> {
   return await MiMaMu.findAll({
     where: { isActive: true },
@@ -74,11 +72,13 @@ export async function getCount(): Promise<number> {
 }
 
 export async function isCreationAllowed(): Promise<boolean> {
+  const SERVER_PROMPT_LIMIT = 30;
+
   const count = await getCount()
 
   if (count === undefined) return false;
 
-  return count < PROMPT_LIMIT;
+  return count < SERVER_PROMPT_LIMIT;
 }
 
 export async function deactivate({ id }: { id: string }): Promise<number | void> {
