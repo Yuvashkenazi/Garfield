@@ -20,7 +20,9 @@ export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Pro
 export async function find({ id }: { id: string }): Promise<MiMaMuModel | void> {
   return await MiMaMu.findOne({ where: { id } })
     .then(data => data.toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function getRandom(): Promise<MiMaMuModel | void> {
@@ -29,7 +31,9 @@ export async function getRandom(): Promise<MiMaMuModel | void> {
     where: { isActive: true }
   })
     .then(data => data.toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function getDeactivated(): Promise<MiMaMuModel[]> {
@@ -80,5 +84,7 @@ export async function isCreationAllowed(): Promise<boolean> {
 export async function deactivate({ id }: { id: string }): Promise<number | void> {
   return await MiMaMu.update({ isActive: false }, { where: { id } })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }

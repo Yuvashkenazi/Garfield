@@ -10,7 +10,10 @@
   },
   "scripts": {
     "build": "babel src --out-dir dist --extensions .ts",
-    "start": "npm run build && node --enable-source-maps dist/index.js"
+    "start": "npm run build && node --enable-source-maps dist/index.js",
+    "docker:build:dev": "docker build --platform linux/amd64 -t yuvashkenazi/garfield .",
+    "docker:build:prod": "docker build --platform linux/arm64/v8 -t yuvashkenazi/garfield .",
+    "docker:run": "docker run --privileged -d --restart unless-stopped -v garfield-data:/usr/src/garfield-data --name garfield yuvashkenazi/garfield"
   },
   "exports": [
     "./dist/index.js"
@@ -23,13 +26,13 @@
     "nconf": "^0.12.0",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
-    "pino": "^8.14.1",
-    "pino-pretty": "^10.0.0",
     "puppeteer": "^19.9.0",
     "sequelize": "^6.31.1",
     "sqlite3": "^5.1.6",
     "systeminformation": "^5.17.12",
-    "unofficial-jisho-api": "^2.3.0"
+    "unofficial-jisho-api": "^2.3.0",
+    "winston": "^3.8.2",
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.5",

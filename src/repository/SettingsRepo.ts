@@ -27,7 +27,9 @@ export async function getSettings(): Promise<SettingsModel | void> {
     }
   })
     .then(data => data[0].toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function setWordRate(rate: WordRate): Promise<number> {

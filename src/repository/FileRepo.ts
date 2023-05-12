@@ -1,11 +1,8 @@
 import { PathLike, readdirSync, unlinkSync } from 'fs';
 import fs from 'fs/promises';
 import { sep, basename, join, resolve } from 'path';
-import { FileBasePaths } from '../constants/FileBasepaths.js';
 import { isDevEnv } from '../utils/Common.js';
 import { logger } from '../utils/LoggingHelper.js';
-
-const DOCKER_VOLUME_PATH = 'garfield-data';
 
 export function loadFiles(dir: string): string[] {
     const path = join(process.cwd(), 'dist', dir);
@@ -39,7 +36,9 @@ export async function initCheck(filePath: string, defaultValue = ''): Promise<vo
 
 export async function read(filePath: PathLike): Promise<string | void> {
     const text = await fs.readFile(filePath, { encoding: 'utf8' })
-        .catch(err => logger.error(err));
+        .catch(err => {
+            logger.error(err);
+        });
 
     return text;
 }
@@ -54,7 +53,9 @@ export async function write(filePath: PathLike, data: string): Promise<void> {
     if (!text) return;
 
     return await fs.writeFile(filePath, text)
-        .catch(err => logger.error(err));
+        .catch(err => {
+            logger.error(err);
+        });
 }
 
 export async function append(filePath: PathLike, data: string | Uint8Array) {
@@ -69,7 +70,9 @@ export function deleteFile(filePath: PathLike): void {
     return unlinkSync(filePath);
 }
 
-export function getFilePath(basePath: FileBasePaths, fileName = ''): string {
+export function getFilePath(basePath: string, fileName = ''): string {
+    const DOCKER_VOLUME_PATH = 'garfield-data';
+
     return isDevEnv() ?
         join(resolve(), basePath, fileName) :
         join(sep, 'usr', 'src', DOCKER_VOLUME_PATH, basePath, fileName);

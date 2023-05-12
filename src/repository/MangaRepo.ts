@@ -12,7 +12,9 @@ export async function getManga(): Promise<MangaModel | void> {
     }
   })
     .then(data => data[0].toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function getMangaChapters(name: string): Promise<MangaChapterModel[]> {
@@ -29,7 +31,9 @@ export async function updateManga({ name, chapter, page }: { name: string, chapt
     where: {}
   })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function updateChapterList(name: string, chList: { number: number, url: string }[]): Promise<void> {

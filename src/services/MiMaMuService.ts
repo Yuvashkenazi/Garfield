@@ -426,7 +426,7 @@ function getUpdatedUserPrompt({ prompt, answer, guesses }: { prompt: string, ans
 
 async function updateLiveGuessCount() {
     if (currentMiMaMu.message && currentMiMaMu.message.editable && currentMiMaMu.embed) {
-        const users = (await findAllUsers()).filter(x => x.dailyMiMaMuGuessCount > 0);
+        const users = (await findAllUsers({ orderBy: 'username' })).filter(x => x.dailyMiMaMuGuessCount > 0);
 
         const fields: APIEmbedField[] = users.map(x => ({ name: x.username, value: x.dailyMiMaMuGuessCount.toString(), inline: true }));
         currentMiMaMu.embed.setFields(

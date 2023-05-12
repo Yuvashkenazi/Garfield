@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { User as DiscordUser } from 'discord.js';
 import { User } from "./DatabaseRepo.js";
 import { UserModel } from '../models/index.js';
@@ -30,8 +31,11 @@ export async function newUsersCheck(users: DiscordUser[]): Promise<void> {
   );
 }
 
-export async function findAll(): Promise<UserModel[]> {
-  return await User.findAll({ where: {} })
+export async function findAll({ orderBy }: { orderBy?: keyof UserModel }): Promise<UserModel[]> {
+  return await User.findAll({
+    where: {},
+    order: [Sequelize.fn('lower', Sequelize.col(orderBy))]
+  })
     .then(data => data.map(x => x.toJSON()))
     .catch(err => {
       logger.error(err);
@@ -44,7 +48,9 @@ export async function find(id: string): Promise<UserModel | void> {
     where: { id }
   })
     .then(data => data.toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function updateMastermindData({ id, gameStarted, answer, attempts }:
@@ -57,7 +63,9 @@ export async function updateMastermindData({ id, gameStarted, answer, attempts }
     where: { id }
   })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function resetDailyMiMaMuCount(): Promise<void> {

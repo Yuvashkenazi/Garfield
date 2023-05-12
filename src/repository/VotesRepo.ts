@@ -14,7 +14,9 @@ export async function getVotes(): Promise<VoteModel | void> {
     }
   })
     .then(data => data[0].toJSON())
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function updateNames({ comic1, comic2 }): Promise<number | void> {
@@ -25,7 +27,9 @@ export async function updateNames({ comic1, comic2 }): Promise<number | void> {
     where: {}
   })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function updateScore({ comic1, comic2, ties }): Promise<number | void> {
@@ -37,7 +41,9 @@ export async function updateScore({ comic1, comic2, ties }): Promise<number | vo
     where: {}
   })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }
 
 export async function resetVotes(): Promise<number | void> {
@@ -49,5 +55,7 @@ export async function resetVotes(): Promise<number | void> {
     where: {}
   })
     .then(data => data[0])
-    .catch(err => logger.error(err));
+    .catch(err => {
+      logger.error(err);
+    });
 }

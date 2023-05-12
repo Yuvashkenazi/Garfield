@@ -1,23 +1,39 @@
-import pino from 'pino';
-import pretty from 'pino-pretty';
-import { createWriteStream } from 'fs'
+import * as winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import { getFilePath } from '../repository/FileRepo';
-import { isDevEnv } from './Common';
 import { FileBasePaths } from '../constants/FileBasepaths';
+import { isDevEnv } from './Common';
 
-const LOG_FILE_DESTINATION = getFilePath(FileBasePaths.Logs, 'garfield.log');
+winston.addColors({
+    silly: 'magenta',
+    debug: 'blue',
+    verbose: 'cyan',
+    info: 'green',
+    warn: 'yellow',
+    error: 'red'
+});
 
-const streams = [
-    { stream: pretty() },
-    { stream: createWriteStream(LOG_FILE_DESTINATION) },
-];
+const date = new Date().toISOString();
+const format = winston.format.combine(
+    winston.format.colorize(),
+    winston.format.printf(info => `${date}-${info.level}: ${JSON.stringify(info.message, null, 4)}`)
+);
+
+// const transport: DailyRotateFile = new DailyRotateFile({
+//     filename: 'garfield-%DATE%.log',
+//     dirname: getFilePath(FileBasePaths.Logs),
+//     datePattern: 'YYYY-MM-DD-HH',
+//     zippedArchive: true,
+//     maxSize: '20m',
+//     maxFiles: '14d',
+//     format
+// });
 
 export const logger = isDevEnv() ?
     console :
-    pino({
-        formatters: {
-            level: label => {
-                return { level: label };
-            },
-        },
-    }, pino.multistream(streams));
+    winston.createLogger({
+        transports: [
+            new winston.transports.Console({ format }),
+            // transport
+        ],
+    });
