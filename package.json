@@ -26,7 +26,7 @@
     "nconf": "^0.12.0",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
-    "puppeteer": "^19.9.0",
+    "puppeteer": "^20.2.0",
     "sequelize": "^6.31.1",
     "sqlite3": "^5.1.6",
     "systeminformation": "^5.17.12",
