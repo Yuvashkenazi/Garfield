@@ -63,8 +63,8 @@ export async function create({ answer, prompt, author }: { answer: string, promp
     });
 }
 
-export async function getCount(): Promise<number> {
-  return await MiMaMu.count()
+export async function getActiveCount(): Promise<number> {
+  return await MiMaMu.count({ where: { isActive: true } })
     .catch(err => {
       logger.error(err);
       return undefined;
@@ -74,7 +74,7 @@ export async function getCount(): Promise<number> {
 export async function isCreationAllowed(): Promise<boolean> {
   const SERVER_PROMPT_LIMIT = 30;
 
-  const count = await getCount()
+  const count = await getActiveCount()
 
   if (count === undefined) return false;
 

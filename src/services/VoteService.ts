@@ -28,13 +28,13 @@ export async function sendComicVote() {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-    await postVotingComics(client.theComicChannelID, comicObj1, comicObj2);
+    await postVotingComics(client.theComicChannel, comicObj1, comicObj2);
 
-    client.theComicChannelID.send({ content: 'Vote!', components: [row] });
+    client.theComicChannel.send({ content: 'Vote!', components: [row] });
 
     const filter = m => m.customId === 'comic1' || m.customId === 'comic2'
 
-    const collector = client.theComicChannelID.createMessageComponentCollector({ filter: filter, time: COMIC_VOTING_PERIOD });
+    const collector = client.theComicChannel.createMessageComponentCollector({ filter: filter, time: COMIC_VOTING_PERIOD });
 
     collector.on('collect', async interaction => {
         const { customId } = interaction;
@@ -101,7 +101,7 @@ export async function sendComicVote() {
                 ` },
             ]);
 
-        client.theComicChannelID.send({ embeds: [result] });
+        client.theComicChannel.send({ embeds: [result] });
     });
 }
 

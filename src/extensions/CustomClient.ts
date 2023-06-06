@@ -1,4 +1,4 @@
-import { BaseInteraction, ChatInputCommandInteraction, Client, ClientOptions, Collection, GuildMember, Message, TextChannel } from 'discord.js';
+import { BaseInteraction, Client, ClientOptions, Collection, GuildMember, Message, TextChannel } from 'discord.js';
 import { Command } from '../types/Command.js';
 import { Event } from '../types/Event.js';
 import { FileBasePaths } from '../constants/FileBasepaths.js';
@@ -22,12 +22,12 @@ export class CustomClient extends Client implements SettingsModel {
     MiMaMuNumber: number;
     dailyMiMaMuId: string;
 
-    theChannelID: TextChannel;
-    theSpamChannelID: TextChannel;
-    musicalChannelID: TextChannel;
-    mangaChannelID: TextChannel;
-    theComicChannelID: TextChannel;
-    mimamuChannelId: TextChannel;
+    theChannel: TextChannel;
+    theSpamChannel: TextChannel;
+    musicalChannel: TextChannel;
+    mangaChannel: TextChannel;
+    theComicChannel: TextChannel;
+    mimamuChannel: TextChannel;
 
     constructor(clientOptions: ClientOptions) {
         super(clientOptions);
@@ -57,7 +57,7 @@ export class CustomClient extends Client implements SettingsModel {
             const execute = (...arg: EventData[]) => event.execute({
                 client: this,
                 ...(arg[0] instanceof Message ? { message: arg[0] } : {}),
-                ...(arg[0] instanceof ChatInputCommandInteraction ? { interaction: arg[0] } : {}),
+                ...(arg[0] instanceof BaseInteraction ? { interaction: arg[0] } : {}),
                 ...(Array.isArray(arg) && arg.length === 2 && arg.every(m => m instanceof GuildMember) ? { oldMember: arg[0], newMember: arg[1] } : {}),
             });
 

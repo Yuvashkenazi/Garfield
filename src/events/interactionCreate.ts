@@ -1,12 +1,22 @@
-import { Events } from 'discord.js';
+import { ButtonInteraction, Events } from 'discord.js';
 import { Event, InteractionCreateParams } from '../types/Event.js';
+import { customIds } from '../components/mimamu/index.js';
+import { handleGuessBtn, handleShowPromptBtn } from '../services/MiMaMuService.js';
 import { logger } from '../utils/LoggingHelper.js';
 
 export const event: Event = {
     name: Events.InteractionCreate,
     once: false,
     async execute({ interaction, client }: InteractionCreateParams) {
-        if (!interaction || !interaction.isCommand()) return;
+        if (!interaction) return;
+
+        if (interaction.isButton()) {
+            await handleBtn(interaction);
+        }
+
+        if (!interaction.isCommand()) return;
+
+        if (!interaction.isChatInputCommand()) return;
 
         const command = client.commands.get(interaction.commandName);
 
@@ -25,3 +35,16 @@ export const event: Event = {
         }
     },
 };
+
+async function handleBtn(interaction: ButtonInteraction) {
+    switch (interaction.customId) {
+        case customIds.guessBtnId:
+            await handleGuessBtn(interaction);
+            break;
+        case customIds.showPromptBtnId:
+            await handleShowPromptBtn(interaction);
+            break;
+        default:
+            break;
+    }
+}

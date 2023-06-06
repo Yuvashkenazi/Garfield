@@ -3,7 +3,9 @@ import { MiMaMuPromptModal, customIds as promptModalCustomIds } from './mimamuPr
 
 const customIds = {
     ...guessModalCustomIds,
-    ...promptModalCustomIds
+    ...promptModalCustomIds,
+    guessBtnId: 'guess-btn',
+    showPromptBtnId: 'show-prompt-btn'
 };
 
 export {

@@ -21,10 +21,10 @@ export interface Config {
 export const config = _config as Config;
 
 export const channelIds = new Map<string, string>([
-    ['theChannelID', config.theChannelID],
-    ['theSpamChannelID', config.theSpamChannelID],
-    ['musicalChannelID', config.musicalChannelID],
-    ['mangaChannelID', config.mangaChannelID],
-    ['theComicChannelID', config.theComicChannelID],
-    ['mimamuChannelId', config.mimamuChannelId],
+    ['theChannel', config.theChannelID],
+    ['theSpamChannel', config.theSpamChannelID],
+    ['musicalChannel', config.musicalChannelID],
+    ['mangaChannel', config.mangaChannelID],
+    ['theComicChannel', config.theComicChannelID],
+    ['mimamuChannel', config.mimamuChannelId],
 ]);

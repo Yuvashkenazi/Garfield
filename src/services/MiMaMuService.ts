@@ -1,14 +1,16 @@
 import { client } from "../index.js";
 import {
+    Collection,
     EmbedBuilder,
     AttachmentBuilder,
     ButtonBuilder,
     ActionRowBuilder,
     ButtonStyle,
-    ModalSubmitInteraction,
     ChatInputCommandInteraction,
-    Message,
-    APIEmbedField
+    APIEmbedField,
+    ThreadChannel,
+    ButtonInteraction,
+    Message
 } from "discord.js";
 import { getFilePath, readDir, deleteFile } from '../repository/FileRepo.js';
 import { parse } from "path";
@@ -45,24 +47,19 @@ const MODAL_TIMEOUT = 300_000;
 const USER_DAILY_LIMIT = 3;
 const HIDDEN_WORD_MASK = '*';
 
-const currentMiMaMu: {
-    message?: Message
-    embed?: EmbedBuilder
-} = {};
-
 export async function playMiMaMu(): Promise<void> {
     const { MiMaMuNumber, dailyMiMaMuId: yesterdayMiMaMuId } = { ...await getSettings() } as SettingsModel;
 
     if (yesterdayMiMaMuId) {
         const { answer: yesterdayAnswer } = { ...await findMiMaMu({ id: yesterdayMiMaMuId }) } as MiMaMuModel;
 
-        await client.mimamuChannelId.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${yesterdayAnswer}**` });
+        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${yesterdayAnswer}**` });
     }
 
     const { id, answer, prompt, author } = { ...await getRandom() } as MiMaMuModel;
 
     if (!id) {
-        await client.mimamuChannelId.send({ content: 'No MiMaMu prompts found in database.' });
+        await client.mimamuChannel.send({ content: 'No MiMaMu prompts found in database.' });
 
         await setDailyMiMaMuId({ id: '' });
         return;
@@ -71,12 +68,12 @@ export async function playMiMaMu(): Promise<void> {
     await setDailyMiMaMuId({ id });
 
     const guessBtn = new ButtonBuilder()
-        .setCustomId('guess')
+        .setCustomId(customIds.guessBtnId)
         .setLabel('Guess')
         .setStyle(ButtonStyle.Primary);
 
     const showPromptBtn = new ButtonBuilder()
-        .setCustomId('show-prompt')
+        .setCustomId(customIds.showPromptBtnId)
         .setLabel('Show Prompt')
         .setStyle(ButtonStyle.Secondary);
 
@@ -95,48 +92,11 @@ export async function playMiMaMu(): Promise<void> {
         .setFooter({ text: `prompt by ${author}` })
         .setImage(`attachment://${imgFileName}`);
 
-    const thread = await client.mimamuChannelId.threads.create({
+    const thread = await client.mimamuChannel.threads.create({
         name: title
     })
 
-    const message = await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
-
-    currentMiMaMu.embed = embed;
-    currentMiMaMu.message = message;
-
-    const guessBtnCollector = message.createMessageComponentCollector({ filter: (u) => u.customId === 'guess' });
-    const showPromptBtnCollector = message.createMessageComponentCollector({ filter: (u) => u.customId === 'show-prompt' });
-
-    guessBtnCollector.on('collect', (collectedInteraction) => {
-        const modal = MiMaMuGuessModal();
-        collectedInteraction.showModal(modal);
-
-        const filter = (cld: ModalSubmitInteraction) => cld.customId === customIds.guessModalId;
-        collectedInteraction.awaitModalSubmit({ filter, time: MODAL_TIMEOUT })
-            .then(async interaction => {
-                const fields = interaction.fields;
-                const guess = fields.getTextInputValue(customIds.guessInputId);
-
-                const response = await guessMiMaMu({ userId: interaction.user.id, guess });
-
-                interaction.deferUpdate();
-
-                collectedInteraction.followUp({ ephemeral: true, content: response });
-            })
-            .catch(err => logger.error(err));
-    });
-
-    showPromptBtnCollector.on('collect', async (collectedInteraction) => {
-        const id = collectedInteraction.user.id;
-
-        const { dailyMiMaMuGuess } = { ...await findUser(id) } as UserModel;
-
-        const pastAnswers = !dailyMiMaMuGuess ? [] : dailyMiMaMuGuess.split(';');
-
-        const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
-
-        collectedInteraction.reply({ ephemeral: true, content: bold(currentUserPrompt) });
-    });
+    await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
 
     await deactivate({ id });
     await incrementMiMaMuNumber();
@@ -165,14 +125,14 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
         if (wordsLeft.includes(guessed)) newlyFound.push(guessed);
     }
 
-    const updatedGuesses = [...pastAnswers, ...newlyFound];
-    await updateLatestMiMaMuGuess({ id: userId, guess: updatedGuesses.join(';') });
+    const updatedGuesses = new Set([...pastAnswers, ...newlyFound]);
+    await updateLatestMiMaMuGuess({ id: userId, guess: [...updatedGuesses].join(';') });
 
     await incrementDailyMiMaMuGuessCount({ id: userId });
 
     await updateLiveGuessCount();
 
-    const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: updatedGuesses });
+    const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: [...updatedGuesses] });
 
     const won = (newlyFound.length === wordsLeft.length &&
         newlyFound.every(x => wordsLeft.includes(x)));
@@ -180,7 +140,7 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
     if (won) {
         const incrementedGuessCount = dailyMiMaMuGuessCount + 1;
         const isGuessPlural = incrementedGuessCount > 1;
-        await client.mimamuChannelId.send({ content: `${at(userId)} solved MiMaMu #${MiMaMuNumber - 1} in ${incrementedGuessCount} ${isGuessPlural ? 'guesses' : 'guess'}!` });
+        await client.mimamuChannel.send({ content: `${at(userId)} solved MiMaMu #${MiMaMuNumber - 1} in ${incrementedGuessCount} ${isGuessPlural ? 'guesses' : 'guess'}!` });
     }
 
     return won ?
@@ -424,14 +384,79 @@ function getUpdatedUserPrompt({ prompt, answer, guesses }: { prompt: string, ans
     return getDisplayPrompt({ prompt: result, answer });
 }
 
-async function updateLiveGuessCount() {
-    if (currentMiMaMu.message && currentMiMaMu.message.editable && currentMiMaMu.embed) {
-        const users = (await findAllUsers({ orderBy: 'username' })).filter(x => x.dailyMiMaMuGuessCount > 0);
+async function updateLiveGuessCount(): Promise<void> {
+    const thread = await getLatestMiMaMuThread();
 
-        const fields: APIEmbedField[] = users.map(x => ({ name: x.username, value: x.dailyMiMaMuGuessCount.toString(), inline: true }));
-        currentMiMaMu.embed.setFields(
+    const messages = await thread.messages.fetch();
+
+    const embedMessage = messages.reduce((a: Message, b: Message) => a.createdTimestamp < b.createdTimestamp ? a : b, messages[0]);
+
+    const oldEmbed = embedMessage.embeds[0];
+
+    if (!embedMessage || !embedMessage.editable || !oldEmbed) return;
+
+    const users = (await findAllUsers({ orderBy: 'username' })).filter(x => x.dailyMiMaMuGuessCount > 0);
+
+    const fields: APIEmbedField[] = users.map(x => ({ name: x.username, value: x.dailyMiMaMuGuessCount.toString(), inline: true }));
+
+    const embed = new EmbedBuilder(oldEmbed)
+        .setFields(
             { name: 'Guess count:', value: ' ', inline: false },
             ...fields);
-        currentMiMaMu.message.edit({ embeds: [currentMiMaMu.embed] });
+
+    embedMessage.edit({ embeds: [embed] });
+}
+
+export async function handleGuessBtn(interaction: ButtonInteraction) {
+    const modal = MiMaMuGuessModal();
+    interaction.showModal(modal);
+
+    const TWENTY_FOUR_HOURS = 8.64e7;
+
+    const submitted = await interaction.awaitModalSubmit({
+        time: TWENTY_FOUR_HOURS,
+        filter: i => i.user.id === interaction.user.id,
+    }).catch(error => {
+        logger.error(error);
+        return null;
+    })
+
+    if (submitted) {
+        const guess = submitted.fields.getTextInputValue(customIds.guessInputId);
+
+        const response = await guessMiMaMu({ userId: interaction.user.id, guess });
+
+        await interaction.isRepliable() ?
+            interaction.reply({ ephemeral: true, content: response }) :
+            interaction.followUp({ ephemeral: true, content: response });
     }
+}
+
+export async function handleShowPromptBtn(interaction: ButtonInteraction) {
+    const id = interaction.user.id;
+
+    const { dailyMiMaMuGuess } = { ...await findUser(id) } as UserModel;
+
+    if (!dailyMiMaMuGuess) return;
+
+    const { prompt, answer } = { ...await findMiMaMu({ id: client.dailyMiMaMuId }) } as MiMaMuModel;
+
+    if (!prompt || !answer) return;
+
+    const pastAnswers = !dailyMiMaMuGuess ? [] : dailyMiMaMuGuess.split(';');
+
+    const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
+
+    await interaction.isRepliable() ?
+        interaction.reply({ ephemeral: true, content: bold(currentUserPrompt) }) :
+        interaction.followUp({ ephemeral: true, content: bold(currentUserPrompt) });
+}
+
+async function getLatestMiMaMuThread(): Promise<ThreadChannel> {
+    const [guild] = client.guilds.cache.values();
+    const threads = guild.channels.cache.filter(x => x.isThread()) as Collection<string, ThreadChannel>;
+
+    return threads
+        .filter(x => x.ownerId === client.application.id)
+        .reduce((acc: ThreadChannel, curr: ThreadChannel) => acc.createdTimestamp > curr.createdTimestamp ? acc : curr)
 }

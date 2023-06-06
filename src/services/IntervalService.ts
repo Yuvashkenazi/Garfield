@@ -41,38 +41,38 @@ async function onInterval() {
 
     const hrNumber = parseInt(currentHr);
 
-    sendWord(client.theChannelID, WordRate[client.wordRate]);
+    sendWord(client.theChannel, WordRate[client.wordRate]);
 
     if (currentHrMin === '12:01 am') {
         if (currentDayOfMonth === 1) await deleteDeactivatedImages();
 
-        birthdayCheck(client.theChannelID, localized);
+        birthdayCheck(client.theChannel, localized);
     }
 
     if (currentTime === 'Monday, 6:00 am') {
         const chosenQuote = MondayQuotes[Math.floor((MondayQuotes.length - 1) * Math.random())];
-        client.theChannelID.send(chosenQuote);
+        client.theChannel.send(chosenQuote);
     }
 
     if (client.isMorningSongsOn && currentHrMin === '5:00 am') {
         const chosenSong = MorningSongs[Math.floor((MorningSongs.length - 1) * Math.random())];
-        client.theChannelID.send(chosenSong);
+        client.theChannel.send(chosenSong);
     }
 
     if (currentDayOfMonth === 5 && currentHrMin === '5:55 pm') {
-        client.musicalChannelID.send(YoutubeLinks.galoSengen);
+        client.musicalChannel.send(YoutubeLinks.galoSengen);
     }
 
     if (currentHrMin === '8:00 am') {
         const temp = await checkTemp();
 
-        client.theSpamChannelID.send(`My temp: ${temp.main.toFixed(2)}°C`);
+        client.theSpamChannel.send(`My temp: ${temp.main.toFixed(2)}°C`);
     }
 
     if (client.isMangaOn
         && hrNumber % 2 === 0
         && currentMin === '00') {
-        nextManga(client.mangaChannelID);
+        nextManga(client.mangaChannel);
     }
 
     if (client.isVoteOn && currentHrMin === client.voteStartTime) {
