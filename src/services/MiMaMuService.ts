@@ -10,7 +10,8 @@ import {
     APIEmbedField,
     ThreadChannel,
     ButtonInteraction,
-    Message
+    Message,
+    ModalSubmitInteraction
 } from "discord.js";
 import { getFilePath, readDir, deleteFile } from '../repository/FileRepo.js';
 import { parse } from "path";
@@ -413,7 +414,7 @@ export async function handleGuessBtn(interaction: ButtonInteraction) {
 
     const TWENTY_FOUR_HOURS = 8.64e7;
 
-    const submitted = await interaction.awaitModalSubmit({
+    const submitted: ModalSubmitInteraction = await interaction.awaitModalSubmit({
         time: TWENTY_FOUR_HOURS,
         filter: i => i.user.id === interaction.user.id,
     }).catch(error => {
@@ -422,13 +423,13 @@ export async function handleGuessBtn(interaction: ButtonInteraction) {
     })
 
     if (submitted) {
+        await submitted.deferUpdate();
+
         const guess = submitted.fields.getTextInputValue(customIds.guessInputId);
 
         const response = await guessMiMaMu({ userId: interaction.user.id, guess });
 
-        await interaction.isRepliable() ?
-            interaction.reply({ ephemeral: true, content: response }) :
-            interaction.followUp({ ephemeral: true, content: response });
+        interaction.followUp({ ephemeral: true, content: response });
     }
 }
 
@@ -437,7 +438,7 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
 
     const { dailyMiMaMuGuess } = { ...await findUser(id) } as UserModel;
 
-    if (!dailyMiMaMuGuess) return;
+    if (typeof (dailyMiMaMuGuess) !== "string") return;
 
     const { prompt, answer } = { ...await findMiMaMu({ id: client.dailyMiMaMuId }) } as MiMaMuModel;
 
@@ -447,9 +448,7 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
 
     const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
 
-    await interaction.isRepliable() ?
-        interaction.reply({ ephemeral: true, content: bold(currentUserPrompt) }) :
-        interaction.followUp({ ephemeral: true, content: bold(currentUserPrompt) });
+    interaction.reply({ ephemeral: true, content: bold(currentUserPrompt) });
 }
 
 async function getLatestMiMaMuThread(): Promise<ThreadChannel> {
