@@ -62,11 +62,11 @@ export async function playMiMaMu(): Promise<void> {
     if (!id) {
         await client.mimamuChannel.send({ content: 'No MiMaMu prompts found in database.' });
 
-        await setDailyMiMaMuId({ id: '' });
+        await updateDailyMiMaMuId({ id: '' });
         return;
     }
 
-    await setDailyMiMaMuId({ id });
+    await updateDailyMiMaMuId({ id });
 
     const guessBtn = new ButtonBuilder()
         .setCustomId(customIds.guessBtnId)
@@ -121,9 +121,9 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
     const wordsLeft = [...hiddenWords].filter(x => !pastAnswers.includes(x));
     if (wordsLeft.length === 0) return 'You already won! Play again tomorrow!';
 
-    const newlyFound = [];
+    const newlyFound = new Set<string>();
     for (const guessed of guessArr) {
-        if (wordsLeft.includes(guessed)) newlyFound.push(guessed);
+        if (wordsLeft.includes(guessed)) newlyFound.add(guessed);
     }
 
     const updatedGuesses = new Set([...pastAnswers, ...newlyFound]);
@@ -131,12 +131,10 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
 
     await incrementDailyMiMaMuGuessCount({ id: userId });
 
-    await updateLiveGuessCount();
-
     const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: [...updatedGuesses] });
 
-    const won = (newlyFound.length === wordsLeft.length &&
-        newlyFound.every(x => wordsLeft.includes(x)));
+    const won = (newlyFound.size === wordsLeft.length &&
+        [...newlyFound].every(x => wordsLeft.includes(x)));
 
     if (won) {
         const incrementedGuessCount = dailyMiMaMuGuessCount + 1;
@@ -385,29 +383,6 @@ function getUpdatedUserPrompt({ prompt, answer, guesses }: { prompt: string, ans
     return getDisplayPrompt({ prompt: result, answer });
 }
 
-async function updateLiveGuessCount(): Promise<void> {
-    const thread = await getLatestMiMaMuThread();
-
-    const messages = await thread.messages.fetch();
-
-    const embedMessage = messages.reduce((a: Message, b: Message) => a.createdTimestamp < b.createdTimestamp ? a : b, messages[0]);
-
-    const oldEmbed = embedMessage.embeds[0];
-
-    if (!embedMessage || !embedMessage.editable || !oldEmbed) return;
-
-    const users = (await findAllUsers({ orderBy: 'username' })).filter(x => x.dailyMiMaMuGuessCount > 0);
-
-    const fields: APIEmbedField[] = users.map(x => ({ name: x.username, value: x.dailyMiMaMuGuessCount.toString(), inline: true }));
-
-    const embed = new EmbedBuilder(oldEmbed)
-        .setFields(
-            { name: 'Guess count:', value: ' ', inline: false },
-            ...fields);
-
-    embedMessage.edit({ embeds: [embed] });
-}
-
 export async function handleGuessBtn(interaction: ButtonInteraction) {
     const modal = MiMaMuGuessModal();
     interaction.showModal(modal);
@@ -451,11 +426,8 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
     interaction.reply({ ephemeral: true, content: bold(currentUserPrompt) });
 }
 
-async function getLatestMiMaMuThread(): Promise<ThreadChannel> {
-    const [guild] = client.guilds.cache.values();
-    const threads = guild.channels.cache.filter(x => x.isThread()) as Collection<string, ThreadChannel>;
+async function updateDailyMiMaMuId({ id }: { id: string }): Promise<void> {
+    await setDailyMiMaMuId({ id });
 
-    return threads
-        .filter(x => x.ownerId === client.application.id)
-        .reduce((acc: ThreadChannel, curr: ThreadChannel) => acc.createdTimestamp > curr.createdTimestamp ? acc : curr)
+    client.dailyMiMaMuId = id;
 }
