@@ -43,24 +43,24 @@ export async function getDeactivated(): Promise<MiMaMuModel[]> {
     });
 }
 
-export async function create({ answer, prompt, author }: { answer: string, prompt: string, author: string }): Promise<MiMaMuModel> {
+export async function create({ id, answer, prompt, author }: { id: string, answer: string, prompt: string, author: string }): Promise<boolean> {
   const allowed = await isCreationAllowed();
 
-  const errObj: MiMaMuModel = { id: undefined, answer: '', prompt: '', author: '', creationDate: 0, isActive: false };
+  if (!allowed) return false;
 
-  if (!allowed) return errObj;
-
-  return await MiMaMu.create({
+  await MiMaMu.create({
+    id,
     answer,
     prompt,
     author,
     creationDate: Date.now()
   })
-    .then(data => data.toJSON())
     .catch(err => {
       logger.error(err)
-      return errObj;
+      return false;
     });
+
+  return true
 }
 
 export async function getActiveCount(): Promise<number> {

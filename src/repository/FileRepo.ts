@@ -1,6 +1,6 @@
-import { PathLike, readdirSync, unlinkSync } from 'fs';
+import { PathLike, readdirSync, unlinkSync, rmSync, existsSync, Dirent } from 'fs';
 import fs from 'fs/promises';
-import { sep, basename, join, resolve } from 'path';
+import { sep, basename, resolve, join as pathJoin } from 'path';
 import { isDevEnv } from '../utils/Common.js';
 import { logger } from '../utils/LoggingHelper.js';
 
@@ -43,8 +43,8 @@ export async function read(filePath: PathLike): Promise<string | void> {
     return text;
 }
 
-export async function readDir(filePath: PathLike): Promise<string[]> {
-    return fs.readdir(filePath);
+export async function readDir(filePath: PathLike): Promise<Dirent[]> {
+    return await fs.readdir(filePath, { withFileTypes: true });
 }
 
 export async function write(filePath: PathLike, data: string): Promise<void> {
@@ -70,10 +70,22 @@ export function deleteFile(filePath: PathLike): void {
     return unlinkSync(filePath);
 }
 
+export function deleteDir(dirPath: PathLike): void {
+    return rmSync(dirPath, { recursive: true, force: true })
+}
+
 export function getFilePath(basePath: string, fileName = ''): string {
     const DOCKER_VOLUME_PATH = 'garfield-data';
 
     return isDevEnv() ?
         join(resolve(), basePath, fileName) :
         join(sep, 'usr', 'src', DOCKER_VOLUME_PATH, basePath, fileName);
+}
+
+export function exists(path: string): boolean {
+    return existsSync(path);
+}
+
+export function join(...paths: string[]) {
+    return pathJoin(...paths);
 }

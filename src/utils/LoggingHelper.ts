@@ -16,7 +16,7 @@ winston.addColors({
 const date = new Date().toISOString();
 const format = winston.format.combine(
     winston.format.colorize(),
-    winston.format.printf(info => `${date}-${info.level}: ${JSON.stringify(info.message, null, 4)}`)
+    winston.format.printf(info => `${date}-${info.level}: ${info.message}`)
 );
 
 // const transport: DailyRotateFile = new DailyRotateFile({

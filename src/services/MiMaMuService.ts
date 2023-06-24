@@ -1,31 +1,24 @@
 import { client } from "../index.js";
 import {
-    Collection,
     EmbedBuilder,
     AttachmentBuilder,
     ButtonBuilder,
     ActionRowBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
-    APIEmbedField,
-    ThreadChannel,
     ButtonInteraction,
-    Message,
     ModalSubmitInteraction
 } from "discord.js";
-import { getFilePath, readDir, deleteFile } from '../repository/FileRepo.js';
-import { parse } from "path";
+import { getFilePath, readDir, deleteDir, join } from '../repository/FileRepo.js';
 import { FileBasePaths } from "../constants/FileBasepaths.js";
 import { getSettings, setDailyMiMaMuId, incrementMiMaMuNumber } from "../repository/SettingsRepo.js";
 import {
     find as findUser,
-    findAll as findAllUsers,
     resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses,
     resetDailyMiMaMuCount,
     incrementDailyMiMaMuGuessCount,
-    updateLatestMiMaMuGuess,
-    incrementDailyMiMaMuCount
+    updateLatestMiMaMuGuess
 } from "../repository/UserRepo.js";
 import {
     find as findMiMaMu,
@@ -33,15 +26,13 @@ import {
     getRandom,
     deactivate,
     getDeactivated,
-    isCreationAllowed,
-    create
+    isCreationAllowed
 } from "../repository/MiMaMuRepo.js";
 import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
-import { saveWebFile } from "./WebServices.js";
-import { generateImage } from "./OpenAIService.js";
-import { MiMaMuGuessModal, MiMaMuPromptModal, customIds } from "../components/mimamu/index.js";
+import { MiMaMuGuessModal, customIds } from "../components/mimamu/index.js";
 import { removePunctuation, bold, at } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";
+import { imagine } from "./MidjourneyService.js";
 
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const MODAL_TIMEOUT = 300_000;
@@ -80,8 +71,9 @@ export async function playMiMaMu(): Promise<void> {
 
     const btnRow = new ActionRowBuilder<ButtonBuilder>().addComponents(guessBtn, showPromptBtn);
 
-    const imgFileName = `${id}.png`;
-    const imgPath = getFilePath(FileBasePaths.MiMaMu, imgFileName);
+    const imgFileName = 'upscale.png';
+    const folderName = id;
+    const imgPath = getFilePath(join(FileBasePaths.MiMaMu, folderName), imgFileName);
 
     const file = new AttachmentBuilder(imgPath);
 
@@ -153,12 +145,9 @@ export async function deleteDeactivatedImages(): Promise<void> {
     const files = await readDir(MIMAMU_BASE_PATH);
 
     for (const file of files) {
-        const parsed = parse(file);
-
-        if (deactivatedIds.includes(parsed.name)) {
+        if (file.isDirectory() && deactivatedIds.includes(file.name)) {
             try {
-                const path = getFilePath(FileBasePaths.MiMaMu, file);
-                deleteFile(path);
+                deleteDir(file.path);
             } catch (error) {
                 logger.error(`Failed to delete MiMaMu file: ${file}`)
                 logger.error(error);
@@ -174,12 +163,10 @@ export async function resetMiMaMu(): Promise<void> {
 }
 
 export async function addMiMaMuPrompt({ interaction, answer }: { interaction: ChatInputCommandInteraction, answer: string }): Promise<void> {
-    const message = await interaction.deferReply({ ephemeral: true });
-
     const allowed = await isCreationAllowed();
 
     if (!allowed) {
-        interaction.editReply({ content: 'The server\'s prompt limit has been reached. Try again tomorrow!' });
+        interaction.reply({ ephemeral: true, content: 'The server\'s prompt limit has been reached. Try again tomorrow!' });
         return;
     }
 
@@ -187,129 +174,19 @@ export async function addMiMaMuPrompt({ interaction, answer }: { interaction: Ch
 
     const userEntity = await findUser(user.id);
 
-    if (!userEntity) return;
+    if (!userEntity) {
+        interaction.reply({ ephemeral: true, content: 'An error occured retrieving your user data' });
+        return;
+    }
 
     if (userEntity.dailyMiMaMuCount >= USER_DAILY_LIMIT) {
-        interaction.editReply({ content: 'You have reached the maximum number of daily prompt creations. Try again tomorrow!' });
+        interaction.reply({ ephemeral: true, content: 'You have reached the maximum number of daily prompt creations. Try again tomorrow!' });
         return;
     }
 
-    const { data: generatedImages, error } = await generateImage({ prompt: answer, n: 3 });
+    interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
 
-    if (error !== '') {
-        interaction.editReply({ content: error });
-        return;
-    }
-
-    if (generatedImages.length !== 3) {
-        interaction.editReply({ content: 'Failed to retreive images.' });
-        return;
-    }
-
-    await incrementDailyMiMaMuCount({ id: user.id });
-
-    const imgSelectBtn = new ButtonBuilder()
-        .setCustomId('select-image')
-        .setLabel('Choose image')
-        .setStyle(ButtonStyle.Primary);
-
-    const btnRow = new ActionRowBuilder<ButtonBuilder>().addComponents(imgSelectBtn);
-
-    const embedA = new EmbedBuilder()
-        .setTitle('Option A')
-        .setImage(generatedImages[0].url);
-
-    const embedB = new EmbedBuilder()
-        .setTitle('Option B')
-        .setImage(generatedImages[1].url);
-
-    const embedC = new EmbedBuilder()
-        .setTitle('Option C')
-        .setImage(generatedImages[2].url)
-        .setFooter({ text: `You have used ${userEntity.dailyMiMaMuCount + 1}/${USER_DAILY_LIMIT} of your daily prompt creations.` });
-
-    interaction.editReply({ embeds: [embedA, embedB, embedC], components: [btnRow] });
-
-    const collector = message.createMessageComponentCollector({ filter: (u) => u.user.id === interaction.user.id });
-
-    collector.on('collect', (collectedInteraction) => {
-        const modal = MiMaMuPromptModal(answer);
-        collectedInteraction.showModal(modal);
-
-        const filter = (cld) => cld.customId === customIds.promptModalId;
-        collectedInteraction.awaitModalSubmit({ filter, time: MODAL_TIMEOUT })
-            .then(async interaction => {
-                const fields = interaction.fields;
-                const imgSelected = fields.getTextInputValue(customIds.imgSelectId).toUpperCase();
-                const prompt = fields.getTextInputValue(customIds.promptCreateId);
-                const splitPrompt = prompt.split(' ').filter(x => x !== '');
-                const splitAnswer = answer.split(' ').filter(x => x !== '');
-                const errors: string[] = [];
-
-                if (!['A', 'B', 'C'].includes(imgSelected)) {
-                    errors.push('Invalid image selected.');
-                }
-
-                if (splitAnswer.length !== splitPrompt.length) {
-                    errors.push('Entered prompt must have the same number of words as original prompt');
-                }
-
-                if (!prompt.includes('*')) {
-                    errors.push('Entered prompt must include at least one hidden word.');
-                }
-
-                let isWordMismatch = false;
-                for (let i = 0; i < splitAnswer.length; i++) {
-                    if (splitPrompt[i] === undefined) continue;
-                    if (splitPrompt[i] !== splitAnswer[i] && !splitPrompt[i].includes('*')) {
-                        isWordMismatch = true;
-                    }
-                }
-
-                if (isWordMismatch) {
-                    errors.push('Entered prompt does not match original answer. Make sure to only replace words with an * and leave all other words exactly as they are.');
-                }
-
-                const isSuccess = errors.length === 0;
-
-                if (!isSuccess) {
-                    errors.unshift('**Errors found:**');
-                    await interaction.reply({ ephemeral: true, content: errors.join('\n- ') });
-                }
-                else {
-                    imgSelectBtn.setDisabled(true);
-                    collectedInteraction.editReply({ embeds: [embedA, embedB, embedC], components: [btnRow] });
-
-                    const { id } = await create({ answer, prompt, author: user.username })
-
-                    if (id === undefined) {
-                        await interaction.reply({ ephemeral: true, content: 'Prompt creation failed. Prompt limit may have been reached.' });
-                        return;
-                    }
-
-                    let imgToSave = '';
-                    const fileName = `${id}.png`;
-                    switch (imgSelected) {
-                        case 'A':
-                            imgToSave = generatedImages[0].url;
-                            break;
-                        case 'B':
-                            imgToSave = generatedImages[1].url;
-                            break;
-                        case 'C':
-                            imgToSave = generatedImages[2].url;
-                            break;
-                    }
-
-                    const path = getFilePath(FileBasePaths.MiMaMu, fileName);
-
-                    await saveWebFile({ url: imgToSave, path });
-
-                    await interaction.reply({ ephemeral: true, content: 'Your submission was received successfully!' });
-                }
-            })
-            .catch(err => logger.error(err));
-    });
+    await imagine({ answer, user });
 }
 
 export async function getAuthorCount(): Promise<{ author: string, count: number }[]> {

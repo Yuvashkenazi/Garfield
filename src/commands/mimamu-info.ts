@@ -12,21 +12,21 @@ export const command: Command = {
         const promptsByAuthor = await getAuthorCount();
         const count = promptsByAuthor.reduce((acc, curr) => acc += curr.count, 0);
 
-        const fields = promptsByAuthor.map(x => ({ name: x.author, value: x.count.toString(), inline: true }))
-
         const description = `
 MiMaMu is toggled ${client.isMiMaMuOn ? bold('on') : bold('off')}
 MiMaMu time is set to ${bold(`${client.MiMaMuStartTime.toUpperCase()} CST`)}
 There are ${bold(`${count}/30`)} prompts available
 `;
 
+        const fields = promptsByAuthor.map(x => ({ name: x.author, value: x.count.toString(), inline: true }))
+        const fieldsArray = fields.length === 0 ? [] :
+            [{ name: 'Current Prompt Authors:', value: ' ', inline: false },
+            ...fields]
+
         const info = new EmbedBuilder()
             .setTitle('MiMaMu Info')
             .setDescription(description)
-            .addFields(
-                { name: 'Current Prompt Authors:', value: ' ', inline: false },
-                ...fields
-            );
+            .addFields(fieldsArray);
 
         interaction.reply({ embeds: [info] });
     },

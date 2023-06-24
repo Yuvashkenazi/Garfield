@@ -14,7 +14,9 @@ export const client = new CustomClient({
     GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildMessageTyping,
     GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages
+
   ],
   failIfNotExists: false
 });
