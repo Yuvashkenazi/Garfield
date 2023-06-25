@@ -16,7 +16,6 @@ import {
     find as findUser,
     resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses,
-    resetDailyMiMaMuCount,
     incrementDailyMiMaMuGuessCount,
     updateLatestMiMaMuGuess
 } from "../repository/UserRepo.js";
@@ -159,7 +158,6 @@ export async function deleteDeactivatedImages(): Promise<void> {
 export async function resetMiMaMu(): Promise<void> {
     await resetDailyMiMaMuGuessCount();
     await resetDailyMiMaMuGuesses();
-    await resetDailyMiMaMuCount();
 }
 
 export async function addMiMaMuPrompt({ interaction, answer }: { interaction: ChatInputCommandInteraction, answer: string }): Promise<void> {
@@ -170,23 +168,9 @@ export async function addMiMaMuPrompt({ interaction, answer }: { interaction: Ch
         return;
     }
 
-    const user = interaction.user;
-
-    const userEntity = await findUser(user.id);
-
-    if (!userEntity) {
-        interaction.reply({ ephemeral: true, content: 'An error occured retrieving your user data' });
-        return;
-    }
-
-    if (userEntity.dailyMiMaMuCount >= USER_DAILY_LIMIT) {
-        interaction.reply({ ephemeral: true, content: 'You have reached the maximum number of daily prompt creations. Try again tomorrow!' });
-        return;
-    }
-
     interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
 
-    await imagine({ answer, user });
+    await imagine({ answer, user: interaction.user });
 }
 
 export async function getAuthorCount(): Promise<{ author: string, count: number }[]> {

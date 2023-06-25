@@ -102,11 +102,6 @@ User.init({
     attempts: {
         type: DataTypes.INTEGER
     },
-    dailyMiMaMuCount: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0
-    },
     dailyMiMaMuGuess: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -23,7 +23,6 @@ export async function newUsersCheck(users: DiscordUser[]): Promise<void> {
       gameStarted: false,
       answer: '',
       attempts: 0,
-      dailyMiMaMuCount: 0,
       dailyMiMaMuGuess: '',
       dailyMiMaMuGuessCount: 0
     })
@@ -66,18 +65,6 @@ export async function updateMastermindData({ id, gameStarted, answer, attempts }
     .catch(err => {
       logger.error(err);
     });
-}
-
-export async function resetDailyMiMaMuCount(): Promise<void> {
-  await User.update({
-    dailyMiMaMuCount: 0
-  }, { where: {} })
-    .catch(err => logger.error(err));
-}
-
-export async function incrementDailyMiMaMuCount({ id }: { id: string }): Promise<void> {
-  await User.increment('dailyMiMaMuCount', { where: { id } })
-    .catch(err => logger.error(err));
 }
 
 export async function resetDailyMiMaMuGuesses() {
