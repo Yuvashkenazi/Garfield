@@ -34,8 +34,6 @@ import { logger } from "../utils/LoggingHelper.js";
 import { imagine } from "./MidjourneyService.js";
 
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
-const MODAL_TIMEOUT = 300_000;
-const USER_DAILY_LIMIT = 3;
 const HIDDEN_WORD_MASK = '*';
 
 export async function playMiMaMu(): Promise<void> {
