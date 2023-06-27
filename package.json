@@ -30,7 +30,7 @@
     "puppeteer": "^20.6.0",
     "sequelize": "^6.32.1",
     "sqlite3": "^5.1.6",
-    "systeminformation": "^5.18.4",
+    "systeminformation": "^5.18.5",
     "unofficial-jisho-api": "^2.3.0",
     "uuid": "^9.0.0",
     "winston": "^3.8.2",
