@@ -17,7 +17,7 @@ export const command: Command = {
 
         const wordsToUse = await generateSentence();
 
-        interaction.reply(`
+        await interaction.reply(`
 Responding to: ${format(message, { bold: true })}
 Using words from: ${format(wordsToUse, { bold: true })}
         `);

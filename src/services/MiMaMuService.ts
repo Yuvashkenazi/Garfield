@@ -162,11 +162,11 @@ export async function addMiMaMuPrompt({ interaction, answer }: { interaction: Ch
     const allowed = await isCreationAllowed();
 
     if (!allowed) {
-        interaction.reply({ ephemeral: true, content: 'The server\'s prompt limit has been reached. Try again tomorrow!' });
+        await interaction.reply({ ephemeral: true, content: 'The server\'s prompt limit has been reached. Try again tomorrow!' });
         return;
     }
 
-    interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
+    await interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
 
     await imagine({ answer, user: interaction.user });
 }
