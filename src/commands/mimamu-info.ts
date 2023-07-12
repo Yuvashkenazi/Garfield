@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "
 import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { getAuthorCount } from '../services/MiMaMuService.js';
-import { bold } from '../utils/Common.js';
+import { format } from '../utils/Common.js';
 
 export const command: Command = {
     data: new SlashCommandBuilder()
@@ -13,9 +13,9 @@ export const command: Command = {
         const count = promptsByAuthor.reduce((acc, curr) => acc += curr.count, 0);
 
         const description = `
-MiMaMu is toggled ${client.isMiMaMuOn ? bold('on') : bold('off')}
-MiMaMu time is set to ${bold(`${client.MiMaMuStartTime.toUpperCase()} CST`)}
-There are ${bold(`${count}/30`)} prompts available
+MiMaMu is toggled ${client.isMiMaMuOn ? format('on', { bold: true }) : format('off', { bold: true })}
+MiMaMu time is set to ${format(`${client.MiMaMuStartTime.toUpperCase()} CST`, { bold: true })}
+There are ${format(`${count}/30`, { bold: true })} prompts available
 `;
 
         const fields = promptsByAuthor.map(x => ({ name: x.author, value: x.count.toString(), inline: true }))

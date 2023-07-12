@@ -17,16 +17,56 @@ export function removePunctuation(s: string) {
     return s.replace(/[.,\/#!$%\^&;:{}=\-_`"~()]/g, "");
 }
 
-export function bold(s: string): string {
-    return `**${s}**`;
-}
+export type TextFormatting = {
+    bold?: boolean;
+    italics?: boolean;
+    underline?: boolean;
+    strikethrough?: boolean
+};
 
-export function italic(s: string): string {
-    return `_${s}_`;
+export function format(s: string, { italics = false, bold = false, underline = false, strikethrough = false }: TextFormatting): string {
+    switch (true) {
+        case underline && bold && italics:
+            s = `__***${s}***__`;
+            break;
+        case underline && bold:
+            s = `__**${s}**__`;
+            break;
+        case underline && italics:
+            s = `__*${s}*__`;
+            break;
+        case underline:
+            s = `__${s}__`;
+            break;
+        case bold && italics:
+            s = `***${s}***`;
+            break;
+        case bold:
+            s = `**${s}**`;
+            break;
+        case italics:
+            s = `*${s}*`;
+            break;
+        default:
+            break;
+    }
+
+    if (strikethrough)
+        s = `~~${s}~~`;
+
+    return s;
 }
 
 export function at(id: string): string {
     return `<@${id}>`;
+}
+
+export function header(s: string, size: 1 | 2 | 3): string {
+    return `<${'#'.repeat(size)} ${s}`;
+}
+
+export function link(link: string, url: string): string {
+    return `[${link}](${url})`;
 }
 
 export function list(arr: string[]): string {

@@ -29,7 +29,7 @@ import {
 } from "../repository/MiMaMuRepo.js";
 import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
 import { MiMaMuGuessModal, customIds } from "../components/mimamu/index.js";
-import { removePunctuation, bold, at } from "../utils/Common.js";
+import { removePunctuation, format, at } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";
 import { imagine } from "./MidjourneyService.js";
 
@@ -282,7 +282,7 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
 
     const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
 
-    interaction.reply({ ephemeral: true, content: bold(currentUserPrompt) });
+    interaction.reply({ ephemeral: true, content: format(currentUserPrompt, { bold: true }) });
 }
 
 async function updateDailyMiMaMuId({ id }: { id: string }): Promise<void> {

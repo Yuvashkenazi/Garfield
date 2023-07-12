@@ -75,6 +75,24 @@ export async function sendWord(ch: TextChannel, mode: WordRate): Promise<void> {
         return;
     }
 
+    const sentence = await generateSentence();
+
+    if (!sentence) {
+        return;
+    }
+
+    ch.send(sentence);
+}
+
+export async function addMessage(msg: string): Promise<void> {
+    const words = msg.split(' ');
+
+    for (const word of words) {
+        await addWord(word);
+    }
+}
+
+export async function generateSentence(): Promise<string> {
     let words = await getList();
 
     if (words.length === 0) {
@@ -107,20 +125,7 @@ export async function sendWord(ch: TextChannel, mode: WordRate): Promise<void> {
 
         sentence += wordToAdd;
     }
-
-    if (!sentence) {
-        return;
-    }
-
-    ch.send(sentence);
-}
-
-export async function addMessage(msg: string): Promise<void> {
-    const words = msg.split(' ');
-
-    for (const word of words) {
-        await addWord(word);
-    }
+    return sentence;
 }
 
 function postCheck(rate: number): boolean {
