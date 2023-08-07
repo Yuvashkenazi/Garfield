@@ -8,7 +8,7 @@ export const command: Command = {
         .setDescription('Adds a new prompt to be used by the daily MiMaMu channel.')
         .addStringOption(option =>
             option.setName('answer')
-                .setDescription('The prompt that will be sent to DALL-E to generate an image.')
+                .setDescription('The prompt that will be sent to Midjourney to generate an image.')
                 .setRequired(true)
                 .setMaxLength(1000)
         ),

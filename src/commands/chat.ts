@@ -19,7 +19,7 @@ export const command: Command = {
 
         await interaction.reply(`
 Responding to: ${format(message, { bold: true })}
-Using words from: ${format(wordsToUse, { bold: true })}
+Using words: ${format(wordsToUse, { bold: true })}
         `);
 
         await chat({

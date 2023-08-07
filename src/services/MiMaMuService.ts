@@ -9,7 +9,7 @@ import {
     ButtonInteraction,
     ModalSubmitInteraction
 } from "discord.js";
-import { getFilePath, readDir, deleteDir, join } from '../repository/FileRepo.js';
+import { exists, getFilePath, readDir, deleteDir, join } from '../repository/FileRepo.js';
 import { FileBasePaths } from "../constants/FileBasepaths.js";
 import { getSettings, setDailyMiMaMuId, incrementMiMaMuNumber } from "../repository/SettingsRepo.js";
 import {
@@ -68,9 +68,13 @@ export async function playMiMaMu(): Promise<void> {
 
     const btnRow = new ActionRowBuilder<ButtonBuilder>().addComponents(guessBtn, showPromptBtn);
 
-    const imgFileName = 'upscale.png';
-    const folderName = id;
-    const imgPath = getFilePath(join(FileBasePaths.MiMaMu, folderName), imgFileName);
+    const folderName = join(FileBasePaths.MiMaMu, id);
+
+    const upscaleExists = exists(getFilePath(folderName, 'upscale.png'));
+
+    const imgFileName = upscaleExists ? 'upscale.png' : 'imagine.png';
+
+    const imgPath = getFilePath(folderName, imgFileName);
 
     const file = new AttachmentBuilder(imgPath);
 
