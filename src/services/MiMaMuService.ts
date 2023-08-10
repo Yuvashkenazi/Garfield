@@ -31,7 +31,7 @@ import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
 import { MiMaMuGuessModal, customIds } from "../components/mimamu/index.js";
 import { removePunctuation, format, at } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";
-import { imagine } from "./MidjourneyService.js";
+import { imagine, MidjourneyOptions } from "./MidjourneyService.js";
 
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const HIDDEN_WORD_MASK = '*';
@@ -70,9 +70,7 @@ export async function playMiMaMu(): Promise<void> {
 
     const folderName = join(FileBasePaths.MiMaMu, id);
 
-    const upscaleExists = exists(getFilePath(folderName, 'upscale.png'));
-
-    const imgFileName = upscaleExists ? 'upscale.png' : 'imagine.png';
+    const imgFileName = exists(getFilePath(folderName, 'upscale.png')) ? 'upscale.png' : 'imagine.png';
 
     const imgPath = getFilePath(folderName, imgFileName);
 
@@ -88,7 +86,7 @@ export async function playMiMaMu(): Promise<void> {
 
     const thread = await client.mimamuChannel.threads.create({
         name: title
-    })
+    });
 
     await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
 
@@ -162,7 +160,7 @@ export async function resetMiMaMu(): Promise<void> {
     await resetDailyMiMaMuGuesses();
 }
 
-export async function addMiMaMuPrompt({ interaction, answer }: { interaction: ChatInputCommandInteraction, answer: string }): Promise<void> {
+export async function addMiMaMuPrompt({ interaction, answer, options }: { interaction: ChatInputCommandInteraction, answer: string, options: MidjourneyOptions }): Promise<void> {
     const allowed = await isCreationAllowed();
 
     if (!allowed) {
@@ -172,7 +170,7 @@ export async function addMiMaMuPrompt({ interaction, answer }: { interaction: Ch
 
     await interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
 
-    await imagine({ answer, user: interaction.user });
+    await imagine({ answer, user: interaction.user, options });
 }
 
 export async function getAuthorCount(): Promise<{ author: string, count: number }[]> {

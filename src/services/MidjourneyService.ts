@@ -5,16 +5,24 @@ import { FileBasePaths } from "../constants/FileBasepaths.js";
 import { getFilePath, exists, join } from '../repository/FileRepo.js';
 import { create } from '../repository/MiMaMuRepo.js';
 import { MiMaMuPromptModal, customIds } from "../components/mimamu/index.js";
+import { MidjourneyStyles } from '../constants/MidjourneyStyles.js';
 import { logger } from "../utils/LoggingHelper.js";
 
 type UpscalePick = '1' | '2' | '3' | '4';
+export type MidjourneyOptions = {
+    style: string;
+    chaos?: number
+    weird?: number
+};
 const INTERACTION_TIMEOUT = 900_000;
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const BASE_URL = 'http://localhost:3001';
 const headers = new Headers({ 'Content-Type': 'application/json' });
 
-export async function imagine({ answer, user }: { answer: string, user: User }) {
-    const data = { id: uuid(), prompt: answer };
+export async function imagine({ answer, user, options }: { answer: string, user: User, options: MidjourneyOptions }) {
+    const params = buildParameters(options);
+
+    const data = { id: uuid(), prompt: `${answer} ${params}` };
 
     await fetch(`${BASE_URL}/imagine`, {
         method: 'POST',
@@ -208,4 +216,38 @@ function getPickedUpscale(customId: string): UpscalePick {
         case '4':
             return '4';
     }
+}
+
+function buildParameters(options: MidjourneyOptions): string {
+    let style = '';
+    let chaos = '';
+    let weird = '';
+
+    switch (options.style) {
+        case MidjourneyStyles.MJ_RAW:
+            style = '--style raw';
+            break;
+        case MidjourneyStyles.NIJI_DEFAULT:
+            style = '--niji 5';
+            break;
+        case MidjourneyStyles.NIJI_CUTE:
+            style = '--niji 5 --style cute';
+            break;
+        case MidjourneyStyles.NIJI_SCENIC:
+            style = '--niji 5 --style scenic';
+            break;
+        case MidjourneyStyles.NIJI_EXPRESSIVE:
+            style = '--niji 5 --style expressive';
+            break;
+        case MidjourneyStyles.MJ_DEFAULT:
+        default:
+            break;
+    }
+
+    if (options.chaos)
+        chaos = `--c ${options.chaos}`;
+    if (options.weird)
+        weird = `--w ${options.weird}`;
+
+    return `${style} ${chaos} ${weird}`;
 }
