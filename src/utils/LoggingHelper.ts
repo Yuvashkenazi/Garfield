@@ -19,21 +19,24 @@ const format = winston.format.combine(
     winston.format.printf(info => `${date}-${info.level}: ${info.message}`)
 );
 
-// const transport: DailyRotateFile = new DailyRotateFile({
-//     filename: 'garfield-%DATE%.log',
-//     dirname: getFilePath(FileBasePaths.Logs),
-//     datePattern: 'YYYY-MM-DD-HH',
-//     zippedArchive: true,
-//     maxSize: '20m',
-//     maxFiles: '14d',
-//     format
-// });
+const fileTransport = new DailyRotateFile({
+    level: 'info',
+    filename: 'garfield-%DATE%.log',
+    dirname: getFilePath(FileBasePaths.Logs),
+    datePattern: 'YYYY-MM-DD-HH',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d',
+    format
+});
 
 export const logger = isDevEnv() ?
     console :
     winston.createLogger({
+        level: 'info',
+        format: winston.format.json(),
         transports: [
             new winston.transports.Console({ format }),
-            // transport
+            fileTransport
         ],
     });

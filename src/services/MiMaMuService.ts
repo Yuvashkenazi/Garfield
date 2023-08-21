@@ -139,18 +139,25 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
 }
 
 export async function deleteDeactivatedImages(): Promise<void> {
-    const deactivatedIds = (await getDeactivated()).map(x => x.id);
+    const activeIds = (await findAllMiMaMus({})).map(x => x.id);
 
-    const files = await readDir(MIMAMU_BASE_PATH);
+    const entries = await readDir(MIMAMU_BASE_PATH);
 
-    for (const file of files) {
-        if (file.isDirectory() && deactivatedIds.includes(file.name)) {
-            try {
-                deleteDir(file.path);
-            } catch (error) {
-                logger.error(`Failed to delete MiMaMu file: ${file}`)
-                logger.error(error);
-            }
+    const toDelete = entries.filter(x => x.isDirectory() && !activeIds.includes(x.name));
+
+    if (toDelete.length === 0) {
+        logger.info('No Mimamu images were deleted')
+        return;
+    }
+
+    for (const entry of toDelete) {
+        try {
+            const path = join(entry.path, entry.name);
+            deleteDir(path);
+            logger.info(`Deleted MiMaMu images for ${entry.name}`)
+        } catch (error) {
+            logger.error(`Failed to delete MiMaMu file: ${entry}`)
+            logger.error(error);
         }
     }
 }
