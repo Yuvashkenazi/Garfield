@@ -17,8 +17,8 @@ export class CustomClient extends Client implements SettingsModel {
     reactionRate: string;
     comic1: string;
     comic2: string;
-    voteStartTime: string;
-    MiMaMuStartTime: string;
+    voteStartTime: number;
+    MiMaMuStartTime: number;
     MiMaMuNumber: number;
     dailyMiMaMuId: string;
 

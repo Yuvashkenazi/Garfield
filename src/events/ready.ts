@@ -5,7 +5,7 @@ import { getSettings } from "../repository/SettingsRepo.js";
 import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
 import { newUsersCheck } from "../repository/UserRepo.js";
-import { restartInterval } from "../services/IntervalService.js";
+import { startScheduledJobs } from "../services/ScheduleService.js";
 import { logger } from "../utils/LoggingHelper.js";
 
 export const event: Event = {
@@ -29,7 +29,7 @@ export const event: Event = {
         settings && client.setSettings(settings);
         channelIds && client.setChannelIds(channelIds);
 
-        restartInterval();
+        startScheduledJobs();
 
         logger.info('Ready!');
     },

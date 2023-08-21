@@ -2,9 +2,9 @@ export interface SettingsModel {
     wordRate: string;
     reactionRate: string;
     isVoteOn: boolean;
-    voteStartTime: string;
+    voteStartTime: number;
     isMiMaMuOn: boolean;
-    MiMaMuStartTime: string;
+    MiMaMuStartTime: number;
     dailyMiMaMuId: string;
     isMangaOn: boolean;
     isMorningSongsOn: boolean;

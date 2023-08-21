@@ -49,9 +49,9 @@ Settings.init({
         defaultValue: false
     },
     voteStartTime: {
-        type: DataTypes.STRING,
+        type: DataTypes.NUMBER,
         allowNull: false,
-        defaultValue: '7:00 pm'
+        defaultValue: 19
     },
     isMiMaMuOn: {
         type: DataTypes.BOOLEAN,
@@ -59,9 +59,9 @@ Settings.init({
         defaultValue: false
     },
     MiMaMuStartTime: {
-        type: DataTypes.STRING,
+        type: DataTypes.NUMBER,
         allowNull: false,
-        defaultValue: '7:00 pm'
+        defaultValue: 19
     },
     dailyMiMaMuId: {
         type: DataTypes.UUID,

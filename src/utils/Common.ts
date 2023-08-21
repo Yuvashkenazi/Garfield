@@ -24,6 +24,14 @@ export type TextFormatting = {
     strikethrough?: boolean
 };
 
+export function format24To12HR(hr: number): string {
+    if (hr === 12) return '12:00 PM';
+
+    return hr > 12 ?
+        `${hr - 12}:00 PM` :
+        `${hr}:00 AM`;
+}
+
 export function format(s: string, { italics = false, bold = false, underline = false, strikethrough = false }: TextFormatting): string {
     switch (true) {
         case underline && bold && italics:

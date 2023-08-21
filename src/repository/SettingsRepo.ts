@@ -18,9 +18,9 @@ export async function getSettings(): Promise<SettingsModel | void> {
       wordRate: WordRate.SLOW,
       reactionRate: ReactionRate.SLOW,
       isVoteOn: true,
-      voteStartTime: '7:00 pm',
+      voteStartTime: 19,
       isMiMaMuOn: true,
-      MiMaMuStartTime: '7:00 pm',
+      MiMaMuStartTime: 19,
       isMangaOn: false,
       isMorningSongsOn: false,
       MiMaMuNumber: 1

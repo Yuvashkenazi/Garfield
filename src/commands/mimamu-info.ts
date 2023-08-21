@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "
 import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { getAuthorCount } from '../services/MiMaMuService.js';
-import { format } from '../utils/Common.js';
+import { format, format24To12HR } from '../utils/Common.js';
 
 export const command: Command = {
     data: new SlashCommandBuilder()
@@ -14,7 +14,7 @@ export const command: Command = {
 
         const description = `
 MiMaMu is toggled ${client.isMiMaMuOn ? format('on', { bold: true }) : format('off', { bold: true })}
-MiMaMu time is set to ${format(`${client.MiMaMuStartTime.toUpperCase()} CST`, { bold: true })}
+MiMaMu time is set to ${format(`${format24To12HR(client.MiMaMuStartTime)} CST`, { bold: true })}
 There are ${format(`${count}/30`, { bold: true })} prompts available
 `;
 
