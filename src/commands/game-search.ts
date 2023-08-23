@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import { query } from "../services/igdbService.js";
 import { logger } from "../utils/LoggingHelper.js";
 
-const { TwitchClientId, TwitchAppAccessToken } = config;
+const { TwitchClientId, TwitchAppAccessToken } = client;
 
-async function searchGame(game) {
+async function searchGame(game: string) {
     return await query({
         clientId: TwitchClientId,
         clientSecret: TwitchAppAccessToken,

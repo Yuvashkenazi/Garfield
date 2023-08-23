@@ -1,9 +1,28 @@
 import { Collection, GatewayIntentBits } from 'discord.js';
 import { CustomClient } from './extensions/CustomClient.js';
-import { config } from './settings.js';
 import process from 'process';
+import { read, getFilePath } from './repository/FileRepo.js';
+import { FileBasePaths } from './constants/FileBasepaths.js';
 import { isDevEnv } from './utils/Common.js';
 import { logger } from './utils/LoggingHelper.js';
+
+export interface Config {
+  clientId: string;
+  guildId: string;
+  token: string;
+  ProPublicaApiKey: string;
+  TwitchClientId: string;
+  TwitchAppAccessToken: string;
+  GiphyApiKey: string;
+  MusixMatchApiKey: string;
+  OpenAIApiKey: string;
+  theChannelID: string;
+  theSpamChannelID: string;
+  musicalChannelID: string;
+  mangaChannelID: string;
+  theComicChannelID: string;
+  mimamuChannelId: string;
+}
 
 export const client = new CustomClient({
   intents: [
@@ -29,6 +48,18 @@ export const client = new CustomClient({
 
     process.setuid(1000);
   }
+
+  const path = getFilePath(FileBasePaths.Config, 'config.json');
+  const text = await read(path);
+
+  if (!text) {
+    logger.error('Config file was not found!');
+    process.exit(1);
+  }
+
+  const config = JSON.parse(text) as Config;
+
+  client.loadConfig(config);
 
   client.events = new Collection();
   client.commands = new Collection();

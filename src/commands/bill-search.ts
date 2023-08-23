@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import { getRandomInteger } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";
 
@@ -9,7 +9,7 @@ async function searchBill(subject: string) {
 
     const options = {
         method: 'GET',
-        headers: { 'X-API-Key': config.ProPublicaApiKey },
+        headers: { 'X-API-Key': client.ProPublicaApiKey },
     };
 
     return await fetch(url, options)

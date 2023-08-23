@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import giphy from "giphy-api";
 import { logger } from "../utils/LoggingHelper.js";
 
 async function randomGif() {
-    return giphy(config.GiphyApiKey)
+    return giphy(client.GiphyApiKey)
         .random('')
         .then(res => {
             return res.data.embed_url;
@@ -14,7 +14,7 @@ async function randomGif() {
 }
 
 async function searchGif(query) {
-    return giphy(config.GiphyApiKey)
+    return giphy(client.GiphyApiKey)
         .search({ q: query, limit: 10 })
         .then(res => {
             if (res.data) {

@@ -14,6 +14,7 @@ import { FileBasePaths } from "../constants/FileBasepaths.js";
 import { getSettings, setDailyMiMaMuId, incrementMiMaMuNumber } from "../repository/SettingsRepo.js";
 import {
     find as findUser,
+    getCoreMembers,
     resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount,
@@ -22,9 +23,9 @@ import {
 import {
     find as findMiMaMu,
     findAll as findAllMiMaMus,
+    getLatest,
     getRandom,
     deactivate,
-    getDeactivated,
     isCreationAllowed
 } from "../repository/MiMaMuRepo.js";
 import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
@@ -36,16 +37,18 @@ import { imagine, MidjourneyOptions } from "./MidjourneyService.js";
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const HIDDEN_WORD_MASK = '*';
 
-export async function playMiMaMu(): Promise<void> {
-    const { MiMaMuNumber, dailyMiMaMuId: yesterdayMiMaMuId } = { ...await getSettings() } as SettingsModel;
+export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { isLightning: false }): Promise<void> {
+    const { MiMaMuNumber, dailyMiMaMuId: previousMiMaMuId } = { ...await getSettings() } as SettingsModel;
 
-    if (yesterdayMiMaMuId) {
-        const { answer: yesterdayAnswer } = { ...await findMiMaMu({ id: yesterdayMiMaMuId }) } as MiMaMuModel;
+    if (previousMiMaMuId) {
+        const { answer: previousAnswer } = { ...await findMiMaMu({ id: previousMiMaMuId }) } as MiMaMuModel;
 
-        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${yesterdayAnswer}**` });
+        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${previousAnswer}**` });
     }
 
-    const { id, answer, prompt, author } = { ...await getRandom() } as MiMaMuModel;
+    const { id, answer, prompt, author } = isLightning ?
+        { ...await getLatest() } as MiMaMuModel :
+        { ...await getRandom() } as MiMaMuModel;
 
     if (!id) {
         await client.mimamuChannel.send({ content: 'No MiMaMu prompts found in database.' });
@@ -87,6 +90,9 @@ export async function playMiMaMu(): Promise<void> {
     const thread = await client.mimamuChannel.threads.create({
         name: title
     });
+
+    const coreMembers = await getCoreMembers();
+    coreMembers.forEach(x => thread.members.add(x.id));
 
     await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
 
@@ -139,18 +145,25 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
 }
 
 export async function deleteDeactivatedImages(): Promise<void> {
-    const deactivatedIds = (await getDeactivated()).map(x => x.id);
+    const activeIds = (await findAllMiMaMus({})).map(x => x.id);
 
-    const files = await readDir(MIMAMU_BASE_PATH);
+    const entries = await readDir(MIMAMU_BASE_PATH);
 
-    for (const file of files) {
-        if (file.isDirectory() && deactivatedIds.includes(file.name)) {
-            try {
-                deleteDir(file.path);
-            } catch (error) {
-                logger.error(`Failed to delete MiMaMu file: ${file}`)
-                logger.error(error);
-            }
+    const toDelete = entries.filter(x => x.isDirectory() && !activeIds.includes(x.name));
+
+    if (toDelete.length === 0) {
+        logger.info('No Mimamu images were deleted')
+        return;
+    }
+
+    for (const entry of toDelete) {
+        try {
+            const path = join(entry.path, entry.name);
+            deleteDir(path);
+            logger.info(`Deleted MiMaMu images for ${entry.name}`)
+        } catch (error) {
+            logger.error(`Failed to delete MiMaMu file: ${entry}`)
+            logger.error(error);
         }
     }
 }

@@ -6,7 +6,7 @@ import { logger } from '../utils/LoggingHelper.js';
 export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Promise<MiMaMuModel[]> {
   return await MiMaMu.findAll({
     where: { isActive: true },
-    order: [Sequelize.fn('lower', Sequelize.col(orderBy))]
+    order: orderBy ? [Sequelize.fn('lower', Sequelize.col(orderBy))] : []
   })
     .then(data => data.map(x => x.toJSON()))
     .catch(err => {
@@ -17,7 +17,18 @@ export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Pro
 
 export async function find({ id }: { id: string }): Promise<MiMaMuModel | void> {
   return await MiMaMu.findOne({ where: { id } })
-    .then(data => data.toJSON())
+    .then(data => data && data.toJSON())
+    .catch(err => {
+      logger.error(err);
+    });
+}
+
+export async function getLatest(): Promise<MiMaMuModel | void> {
+  return await MiMaMu.findOne({
+    order: [['createdAt', 'DESC']],
+    where: { isActive: true }
+  })
+    .then(data => data && data.toJSON())
     .catch(err => {
       logger.error(err);
     });
@@ -28,7 +39,7 @@ export async function getRandom(): Promise<MiMaMuModel | void> {
     order: Sequelize.fn('RANDOM'),
     where: { isActive: true }
   })
-    .then(data => data.toJSON())
+    .then(data => data && data.toJSON())
     .catch(err => {
       logger.error(err);
     });

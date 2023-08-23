@@ -249,5 +249,5 @@ function buildParameters(options: MidjourneyOptions): string {
     if (options.weird)
         weird = `--w ${options.weird}`;
 
-    return `${style} ${chaos} ${weird}`;
+    return (`${style} ${chaos} ${weird}`).trim();
 }

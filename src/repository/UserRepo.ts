@@ -46,9 +46,20 @@ export async function find(id: string): Promise<UserModel | void> {
   return await User.findOne({
     where: { id }
   })
-    .then(data => data.toJSON())
+    .then(data => data && data.toJSON())
     .catch(err => {
       logger.error(err);
+    });
+}
+
+export async function getCoreMembers(): Promise<UserModel[]> {
+  return await User.findAll({
+    where: { isCoreMember: true }
+  })
+    .then(data => data.map(x => x.toJSON()))
+    .catch(err => {
+      logger.error(err);
+      return [];
     });
 }
 

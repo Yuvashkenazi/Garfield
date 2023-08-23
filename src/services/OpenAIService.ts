@@ -1,10 +1,10 @@
 import { GuildTextBasedChannel } from 'discord.js';
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import { Configuration, OpenAIApi, ImagesResponse } from "openai";
 import { at } from '../utils/Common.js';
 import { logger } from "../utils/LoggingHelper.js";
 
-const { OpenAIApiKey } = config;
+const { OpenAIApiKey } = client;
 
 const configuration = new Configuration({ apiKey: OpenAIApiKey });
 const openai = new OpenAIApi(configuration);
@@ -15,17 +15,18 @@ export async function chat({ userId, channel, message, wordsToUse }: {
     message: string,
     wordsToUse: string
 }): Promise<void> {
-    const content = `
-You're the wild and crazy wisecracking cat, Garfield.
-Respond to this message:
-"${message}"
-Using these words:
-"${wordsToUse}"
-`;
+    const identity = `You are the wild and crazy wisecracking cat, Garfield.
+    Your replies cannot exceed 1,975 characters in length.
+    Try to fit the following into your replies:
+    ${wordsToUse}
+    `;
 
     const chatCompletion = await openai.createChatCompletion({
         model: 'gpt-4',
-        messages: [{ role: 'user', content }]
+        messages: [
+            { role: 'system', content: identity },
+            { role: 'user', content: message }
+        ]
     })
         .catch(err => console.error(err));
 

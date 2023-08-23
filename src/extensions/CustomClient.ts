@@ -1,4 +1,5 @@
 import { BaseInteraction, Client, ClientOptions, Collection, GuildMember, Message, TextChannel } from 'discord.js';
+import { Config } from '../index.js';
 import { Command } from '../types/Command.js';
 import { Event } from '../types/Event.js';
 import { FileBasePaths } from '../constants/FileBasepaths.js';
@@ -8,6 +9,13 @@ import { SettingsModel } from '../models/index.js';
 export class CustomClient extends Client implements SettingsModel {
     events: Collection<string, (arg: Message | BaseInteraction) => Promise<void>>;
     commands: Collection<string, Command>;
+
+    ProPublicaApiKey: string;
+    TwitchClientId: string;
+    TwitchAppAccessToken: string;
+    GiphyApiKey: string;
+    MusixMatchApiKey: string;
+    OpenAIApiKey: string;
 
     isMangaOn: boolean;
     isMiMaMuOn: boolean;
@@ -85,7 +93,23 @@ export class CustomClient extends Client implements SettingsModel {
         this.dailyMiMaMuId = settings.dailyMiMaMuId;
     }
 
-    setChannelIds(channelIds: Map<string, string>) {
+    loadConfig(config: Config): void {
+        const channelIds = new Map<string, string>([
+            ['theChannel', config.theChannelID],
+            ['theSpamChannel', config.theSpamChannelID],
+            ['musicalChannel', config.musicalChannelID],
+            ['mangaChannel', config.mangaChannelID],
+            ['theComicChannel', config.theComicChannelID],
+            ['mimamuChannel', config.mimamuChannelId],
+        ]);
+
         channelIds.forEach((value, key) => this[key] = this.channels.cache.get(value));
+
+        this.ProPublicaApiKey = config.ProPublicaApiKey;
+        this.TwitchClientId = config.TwitchClientId;
+        this.TwitchAppAccessToken = config.TwitchAppAccessToken;
+        this.GiphyApiKey = config.GiphyApiKey;
+        this.MusixMatchApiKey = config.MusixMatchApiKey;
+        this.OpenAIApiKey = config.OpenAIApiKey;
     }
 }

@@ -1,4 +1,4 @@
-FROM node:20.5.0
+FROM node:20.5.1
 
 WORKDIR /usr/src/bot
 
@@ -11,6 +11,7 @@ COPY . /usr/src/bot
 VOLUME [ "/usr/src/garfield-data" ]
 
 USER root
+RUN mkdir -p /usr/src/garfield-data/config && chmod -R 777 /usr/src/garfield-data/config
 RUN mkdir -p /usr/src/garfield-data/logs && chmod -R 777 /usr/src/garfield-data/logs
 RUN mkdir -p /usr/src/garfield-data/data && chmod -R 777 /usr/src/garfield-data/data
 RUN mkdir -p /usr/src/garfield-data/farside && chmod -R 777 /usr/src/garfield-data/farside

@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import { logger } from "../utils/LoggingHelper.js";
 
-const { MusixMatchApiKey } = config;
+const { MusixMatchApiKey } = client;
 
 async function songLyrics(artist, song) {
     const url = `https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?format=json&callback=callback&q_track=${song}&q_artist=${artist}&apikey=${MusixMatchApiKey}`;

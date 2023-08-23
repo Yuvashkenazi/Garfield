@@ -93,6 +93,9 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    isCoreMember: {
+        type: DataTypes.BOOLEAN
+    },
     gameStarted: {
         type: DataTypes.BOOLEAN
     },
