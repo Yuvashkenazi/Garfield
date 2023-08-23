@@ -52,7 +52,10 @@ export const client = new CustomClient({
   const path = getFilePath(FileBasePaths.Config, 'config.json');
   const text = await read(path);
 
-  if (!text) throw 'Config not found!';
+  if (!text) {
+    logger.error('Config file was not found!');
+    process.exit(1);
+  }
 
   const config = JSON.parse(text) as Config;
 
