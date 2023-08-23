@@ -16,6 +16,7 @@ winston.addColors({
 const date = new Date().toISOString();
 const format = winston.format.combine(
     winston.format.colorize(),
+    winston.format.errors({ stack: true }),
     winston.format.printf(info => `${date}-${info.level}: ${info.message}`)
 );
 
@@ -26,17 +27,16 @@ const fileTransport = new DailyRotateFile({
     datePattern: 'YYYY-MM-DD-HH',
     zippedArchive: true,
     maxSize: '20m',
-    maxFiles: '14d',
-    format
+    maxFiles: '14d'
 });
 
 export const logger = isDevEnv() ?
     console :
     winston.createLogger({
         level: 'info',
-        format: winston.format.json(),
+        format,
         transports: [
-            new winston.transports.Console({ format }),
+            new winston.transports.Console(),
             fileTransport
         ],
     });
