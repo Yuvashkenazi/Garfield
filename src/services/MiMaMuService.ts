@@ -14,6 +14,7 @@ import { FileBasePaths } from "../constants/FileBasepaths.js";
 import { getSettings, setDailyMiMaMuId, incrementMiMaMuNumber } from "../repository/SettingsRepo.js";
 import {
     find as findUser,
+    getCoreMembers,
     resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount,
@@ -22,9 +23,9 @@ import {
 import {
     find as findMiMaMu,
     findAll as findAllMiMaMus,
+    getLatest,
     getRandom,
     deactivate,
-    getDeactivated,
     isCreationAllowed
 } from "../repository/MiMaMuRepo.js";
 import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
@@ -36,16 +37,18 @@ import { imagine, MidjourneyOptions } from "./MidjourneyService.js";
 const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const HIDDEN_WORD_MASK = '*';
 
-export async function playMiMaMu(): Promise<void> {
-    const { MiMaMuNumber, dailyMiMaMuId: yesterdayMiMaMuId } = { ...await getSettings() } as SettingsModel;
+export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { isLightning: false }): Promise<void> {
+    const { MiMaMuNumber, dailyMiMaMuId: previousMiMaMuId } = { ...await getSettings() } as SettingsModel;
 
-    if (yesterdayMiMaMuId) {
-        const { answer: yesterdayAnswer } = { ...await findMiMaMu({ id: yesterdayMiMaMuId }) } as MiMaMuModel;
+    if (previousMiMaMuId) {
+        const { answer: previousAnswer } = { ...await findMiMaMu({ id: previousMiMaMuId }) } as MiMaMuModel;
 
-        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${yesterdayAnswer}**` });
+        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${previousAnswer}**` });
     }
 
-    const { id, answer, prompt, author } = { ...await getRandom() } as MiMaMuModel;
+    const { id, answer, prompt, author } = isLightning ?
+        { ...await getLatest() } as MiMaMuModel :
+        { ...await getRandom() } as MiMaMuModel;
 
     if (!id) {
         await client.mimamuChannel.send({ content: 'No MiMaMu prompts found in database.' });
@@ -87,6 +90,9 @@ export async function playMiMaMu(): Promise<void> {
     const thread = await client.mimamuChannel.threads.create({
         name: title
     });
+
+    const coreMembers = await getCoreMembers();
+    coreMembers.forEach(x => thread.members.add(x.id));
 
     await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
 

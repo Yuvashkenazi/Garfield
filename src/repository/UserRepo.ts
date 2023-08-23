@@ -52,6 +52,17 @@ export async function find(id: string): Promise<UserModel | void> {
     });
 }
 
+export async function getCoreMembers(): Promise<UserModel[]> {
+  return await User.findAll({
+    where: { isCoreMember: true }
+  })
+    .then(data => data.map(x => x.toJSON()))
+    .catch(err => {
+      logger.error(err);
+      return [];
+    });
+}
+
 export async function updateMastermindData({ id, gameStarted, answer, attempts }:
   { id: string, gameStarted: boolean, answer: string, attempts: number }): Promise<number | void> {
   return await User.update({
