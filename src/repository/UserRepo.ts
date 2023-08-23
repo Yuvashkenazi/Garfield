@@ -46,7 +46,7 @@ export async function find(id: string): Promise<UserModel | void> {
   return await User.findOne({
     where: { id }
   })
-    .then(data => data.toJSON())
+    .then(data => data && data.toJSON())
     .catch(err => {
       logger.error(err);
     });

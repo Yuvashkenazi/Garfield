@@ -1,6 +1,5 @@
 import { Event, ClientReadyParams } from '../types/Event.js';
 import { Events } from "discord.js";
-import { channelIds } from "../settings.js";
 import { getSettings } from "../repository/SettingsRepo.js";
 import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
@@ -27,7 +26,6 @@ export const event: Event = {
         const settings = await getSettings();
 
         settings && client.setSettings(settings);
-        channelIds && client.setChannelIds(channelIds);
 
         restartInterval();
 

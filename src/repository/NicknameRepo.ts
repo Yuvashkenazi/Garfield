@@ -4,7 +4,7 @@ import { logger } from "../utils/LoggingHelper.js";
 
 export async function addNickname({ userId, nickname }: { userId: string, nickname: string }): Promise<NicknameModel | void> {
   return await Nickname.create({ userId, nickname, dateSet: Date.now() })
-    .then(data => data.toJSON())
+    .then(data => data && data.toJSON())
     .catch(err => {
       logger.error(err);
     });

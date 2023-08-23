@@ -18,3 +18,4 @@ deploy-commands.js
 /data
 /mimamu
 /logs
+/config

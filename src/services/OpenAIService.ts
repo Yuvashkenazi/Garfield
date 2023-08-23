@@ -1,10 +1,10 @@
 import { GuildTextBasedChannel } from 'discord.js';
-import { config } from "../settings.js";
+import { client } from "../index.js";
 import { Configuration, OpenAIApi, ImagesResponse } from "openai";
 import { at } from '../utils/Common.js';
 import { logger } from "../utils/LoggingHelper.js";
 
-const { OpenAIApiKey } = config;
+const { OpenAIApiKey } = client;
 
 const configuration = new Configuration({ apiKey: OpenAIApiKey });
 const openai = new OpenAIApi(configuration);

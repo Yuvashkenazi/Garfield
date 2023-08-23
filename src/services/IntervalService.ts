@@ -44,7 +44,7 @@ async function onInterval() {
     sendWord(client.theChannel, WordRate[client.wordRate]);
 
     if (currentHrMin === '12:01 am') {
-        if (currentDayOfMonth === 1) await deleteDeactivatedImages();
+        await deleteDeactivatedImages();
 
         birthdayCheck(client.theChannel, localized);
     }

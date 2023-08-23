@@ -4,5 +4,6 @@ export enum FileBasePaths {
     Data = 'data',
     FarSide = 'farside',
     MiMaMu = 'mimamu',
-    Logs = 'logs'
+    Logs = 'logs',
+    Config = 'config'
 }
