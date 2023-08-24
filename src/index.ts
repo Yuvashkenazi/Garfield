@@ -40,6 +40,8 @@ export const client = new CustomClient({
   failIfNotExists: false
 });
 
+export const channelIds = new Map<string, string>();
+
 (async () => {
   logger.info(`Environment: ${isDevEnv() ? 'DEV' : 'PROD'}`);
 
@@ -58,6 +60,13 @@ export const client = new CustomClient({
   }
 
   const config = JSON.parse(text) as Config;
+
+  channelIds.set('theChannel', config.theChannelID);
+  channelIds.set('theSpamChannel', config.theSpamChannelID);
+  channelIds.set('musicalChannel', config.musicalChannelID);
+  channelIds.set('mangaChannel', config.mangaChannelID);
+  channelIds.set('theComicChannel', config.theComicChannelID);
+  channelIds.set('mimamuChannel', config.mimamuChannelId);
 
   client.loadConfig(config);
 
