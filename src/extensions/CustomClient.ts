@@ -93,23 +93,18 @@ export class CustomClient extends Client implements SettingsModel {
         this.dailyMiMaMuId = settings.dailyMiMaMuId;
     }
 
-    loadConfig(config: Config): void {
-        const channelIds = new Map<string, string>([
-            ['theChannel', config.theChannelID],
-            ['theSpamChannel', config.theSpamChannelID],
-            ['musicalChannel', config.musicalChannelID],
-            ['mangaChannel', config.mangaChannelID],
-            ['theComicChannel', config.theComicChannelID],
-            ['mimamuChannel', config.mimamuChannelId],
-        ]);
-
-        channelIds.forEach((value, key) => this[key] = this.channels.cache.get(value));
-
+    //this has to happen BEFORE commands get loaded in
+    async loadConfig(config: Config): Promise<void> {
         this.ProPublicaApiKey = config.ProPublicaApiKey;
         this.TwitchClientId = config.TwitchClientId;
         this.TwitchAppAccessToken = config.TwitchAppAccessToken;
         this.GiphyApiKey = config.GiphyApiKey;
         this.MusixMatchApiKey = config.MusixMatchApiKey;
         this.OpenAIApiKey = config.OpenAIApiKey;
+    }
+
+    //this has to happen AFTER client ready event is emitted (logged in successfully)
+    loadChannels(channelIds: Map<string, string>) {
+        channelIds.forEach((value, key) => this[key] = this.channels.cache.get(value));
     }
 }
