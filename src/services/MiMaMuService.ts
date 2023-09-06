@@ -23,6 +23,7 @@ import {
 import {
     find as findMiMaMu,
     findAll as findAllMiMaMus,
+    findByAuthor,
     getLatest,
     getRandom,
     deactivate,
@@ -162,7 +163,7 @@ export async function deleteDeactivatedImages(): Promise<void> {
             deleteDir(path);
             logger.info(`Deleted MiMaMu images for ${entry.name}`)
         } catch (error) {
-            logger.error(`Failed to delete MiMaMu file: ${entry}`)
+            logger.error(`Failed to delete MiMaMu file: ${entry.name}`)
             logger.error(error);
         }
     }
@@ -199,6 +200,10 @@ export async function getAuthorCount(): Promise<{ author: string, count: number 
         }
     }
     return promptsByAuthor;
+}
+
+export async function getPromptsByAuthor({ author }: { author: string }): Promise<MiMaMuModel[]> {
+    return await findByAuthor({ author });
 }
 
 function getDisplayPrompt({ prompt, answer }: { prompt: string, answer: string }): string {

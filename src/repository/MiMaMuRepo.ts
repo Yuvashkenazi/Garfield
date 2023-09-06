@@ -15,6 +15,15 @@ export async function findAll({ orderBy }: { orderBy?: keyof MiMaMuModel }): Pro
     });
 }
 
+export async function findByAuthor({ author }: { author: string }): Promise<MiMaMuModel[]> {
+  return await MiMaMu.findAll({ where: { isActive: true, author } })
+    .then(data => data.map(x => x.toJSON()))
+    .catch(err => {
+      logger.error(err);
+      return [];
+    });
+}
+
 export async function find({ id }: { id: string }): Promise<MiMaMuModel | void> {
   return await MiMaMu.findOne({ where: { id } })
     .then(data => data && data.toJSON())
