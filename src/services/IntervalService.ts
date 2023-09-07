@@ -9,7 +9,7 @@ import { birthdayCheck } from "../services/BirthdayService.js";
 import { sendWord } from "../services/RandomWordService.js";
 import { nextManga } from "../services/MangaService.js";
 import { checkTemp } from "../services/TemperatureService.js";
-import { playMiMaMu, resetMiMaMu, deleteDeactivatedImages } from "./MiMaMuService.js";
+import { playMiMaMu, deleteDeactivatedImages } from "./MiMaMuService.js";
 
 let intervalID = null;
 const intervalPeriod = 60000;
@@ -80,8 +80,6 @@ async function onInterval() {
     }
 
     if (client.isMiMaMuOn && currentHrMin === client.MiMaMuStartTime) {
-        await resetMiMaMu();
-
         await playMiMaMu();
     }
 }

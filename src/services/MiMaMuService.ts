@@ -39,6 +39,9 @@ const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const HIDDEN_WORD_MASK = '*';
 
 export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { isLightning: false }): Promise<void> {
+    await resetDailyMiMaMuGuessCount();
+    await resetDailyMiMaMuGuesses();
+
     const { MiMaMuNumber, dailyMiMaMuId: previousMiMaMuId } = { ...await getSettings() } as SettingsModel;
 
     if (previousMiMaMuId) {
@@ -167,11 +170,6 @@ export async function deleteDeactivatedImages(): Promise<void> {
             logger.error(error);
         }
     }
-}
-
-export async function resetMiMaMu(): Promise<void> {
-    await resetDailyMiMaMuGuessCount();
-    await resetDailyMiMaMuGuesses();
 }
 
 export async function addMiMaMuPrompt({ interaction, answer, options }: { interaction: ChatInputCommandInteraction, answer: string, options: MidjourneyOptions }): Promise<void> {
