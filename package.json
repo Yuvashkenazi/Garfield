@@ -19,7 +19,7 @@
     "./dist/index.js"
   ],
   "dependencies": {
-    "@types/uuid": "^9.0.2",
+    "@types/uuid": "^9.0.4",
     "cheerio": "^1.0.0-rc.12",
     "discord.js": "^14.13.0",
     "giphy-api": "^2.0.2",
@@ -32,7 +32,7 @@
     "sqlite3": "^5.1.6",
     "systeminformation": "^5.21.7",
     "unofficial-jisho-api": "^2.3.0",
-    "uuid": "^9.0.0",
+    "uuid": "^9.0.1",
     "winston": "^3.10.0",
     "winston-daily-rotate-file": "^4.7.1"
   },
