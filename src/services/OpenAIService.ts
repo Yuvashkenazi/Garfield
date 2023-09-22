@@ -1,13 +1,14 @@
 import { GuildTextBasedChannel } from 'discord.js';
 import { client } from "../index.js";
-import { Configuration, OpenAIApi, ImagesResponse } from "openai";
+import OpenAI from "openai";
 import { at } from '../utils/Common.js';
 import { logger } from "../utils/LoggingHelper.js";
 
 const { OpenAIApiKey } = client;
 
-const configuration = new Configuration({ apiKey: OpenAIApiKey });
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAI({
+    apiKey: OpenAIApiKey
+});
 
 export async function chat({ userId, channel, message, wordsToUse }: {
     userId: string,
@@ -21,7 +22,7 @@ export async function chat({ userId, channel, message, wordsToUse }: {
     ${wordsToUse}
     `;
 
-    const chatCompletion = await openai.createChatCompletion({
+    const chatCompletion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
             { role: 'system', content: identity },
@@ -30,17 +31,17 @@ export async function chat({ userId, channel, message, wordsToUse }: {
     })
         .catch(err => console.error(err));
 
-    if (!chatCompletion || chatCompletion.status !== 200 || chatCompletion.data.choices.length === 0) {
+    if (!chatCompletion || chatCompletion.choices.length === 0) {
         logger.error('Response could not be generated');
         return;
     }
 
-    channel.send(`${at(userId)} ${chatCompletion.data.choices[0].message.content}`);
+    channel.send(`${at(userId)} ${chatCompletion.choices[0].message.content}`);
 }
 
-export async function generateImage({ prompt, n }: { prompt: string, n: number }): Promise<ImagesResponse & { error: string }> {
+export async function generateImage({ prompt, n }: { prompt: string, n: number }): Promise<OpenAI.Images.ImagesResponse & { error: string }> {
     let error = '';
-    const response = await openai.createImage({
+    const response = await openai.images.generate({
         prompt,
         n,
         size: "1024x1024"
@@ -54,8 +55,8 @@ export async function generateImage({ prompt, n }: { prompt: string, n: number }
         error: error,
         created: 0
     } : {
-        data: response.data?.data ?? [],
-        error: response.status !== 200 ? error : '',
+        data: response.data ?? [],
+        error,
         created: 0
     };
 }

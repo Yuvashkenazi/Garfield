@@ -95,10 +95,10 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
         name: title
     });
 
-    const coreMembers = await getCoreMembers();
-    coreMembers.forEach(x => thread.members.add(x.id));
-
     await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
+
+    const coreMembers = await getCoreMembers();
+    coreMembers.forEach(async x => await thread.members.add(x.id));
 
     await deactivate({ id });
     await incrementMiMaMuNumber();
