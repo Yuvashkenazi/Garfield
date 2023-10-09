@@ -19,7 +19,7 @@
     "./dist/index.js"
   ],
   "dependencies": {
-    "@types/uuid": "^9.0.4",
+    "@types/uuid": "^9.0.5",
     "cheerio": "^1.0.0-rc.12",
     "discord.js": "^14.13.0",
     "giphy-api": "^2.0.2",
