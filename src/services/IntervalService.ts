@@ -1,6 +1,5 @@
 import { client } from "../index.js";
 import moment from "moment-timezone";
-import { WordRate } from "../constants/WordRate.js";
 import { YoutubeLinks } from "../constants/YoutubeLinks.js";
 import { MorningSongs } from "../constants/MorningSongs.js";
 import { MondayQuotes } from "../constants/MondayQuotes.js";
@@ -41,7 +40,7 @@ async function onInterval() {
 
     const hrNumber = parseInt(currentHr);
 
-    sendWord(client.theChannel, WordRate[client.wordRate]);
+    sendWord(client.theChannel);
 
     if (currentHrMin === '12:01 am') {
         await deleteDeactivatedImages();
