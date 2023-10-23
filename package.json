@@ -24,7 +24,7 @@
     "discord.js": "^14.13.0",
     "giphy-api": "^2.0.2",
     "moment-timezone": "^0.5.43",
-    "nconf": "^0.12.0",
+    "nconf": "^0.12.1",
     "node-fetch": "^3.3.2",
     "openai": "^4.10.0",
     "puppeteer": "^21.3.5",
