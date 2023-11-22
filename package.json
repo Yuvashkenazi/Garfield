@@ -21,7 +21,7 @@
   "dependencies": {
     "@types/uuid": "^9.0.5",
     "cheerio": "^1.0.0-rc.12",
-    "discord.js": "^14.13.0",
+    "discord.js": "^14.14.1",
     "giphy-api": "^2.0.2",
     "moment-timezone": "^0.5.43",
     "nconf": "^0.12.1",
