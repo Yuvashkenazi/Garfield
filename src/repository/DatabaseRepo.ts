@@ -80,6 +80,10 @@ Settings.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1
+    },
+    ChatTheme: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, { sequelize });
 

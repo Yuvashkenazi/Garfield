@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { WordRate } from "../constants/WordRate.js";
-import { setWordRate } from "../repository/SettingsRepo.js";
+import { setWordRate } from '../services/SettingsService.js';
 
 const choices = [
     { name: 'Normal', value: WordRate.NORMAL },
@@ -27,9 +27,7 @@ export const command: Command = {
 
             interaction.reply(`Word rate is set to: **${rate.name}**`);
         } else {
-            await setWordRate(WordRate[choice]);
-
-            client.wordRate = choice;
+            await setWordRate({ rate: WordRate[choice] });
 
             const rate = choices.find(x => x.value === choice);
 

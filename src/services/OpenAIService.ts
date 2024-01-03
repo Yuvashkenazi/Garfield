@@ -7,7 +7,7 @@ import { logger } from "../utils/LoggingHelper.js";
 const { OpenAIApiKey } = client;
 
 const openai = new OpenAI({
-    apiKey: OpenAIApiKey
+    apiKey: OpenAIApiKey ?? '0'
 });
 
 export async function chat({ userId, channel, message, wordsToUse }: {
@@ -16,8 +16,7 @@ export async function chat({ userId, channel, message, wordsToUse }: {
     message: string,
     wordsToUse: string
 }): Promise<void> {
-    const identity = `You are the wild and crazy wisecracking cat, Garfield.
-    Your replies cannot exceed 1,975 characters in length.
+    const identity = `${client.ChatTheme}
     Try to fit the following into your replies:
     ${wordsToUse}
     `;
@@ -33,6 +32,11 @@ export async function chat({ userId, channel, message, wordsToUse }: {
 
     if (!chatCompletion || chatCompletion.choices.length === 0) {
         logger.error('Response could not be generated');
+        return;
+    }
+
+    if (chatCompletion.choices[0].message.content.length >= 2_000) {
+        channel.send(`${at(userId)} Generated message was over 2,000 characters long!\n Yuval needs to make it send the message in chunks or something!`);
         return;
     }
 

@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { ReactionRate } from "../constants/ReactionRate.js";
-import { setReactionRate } from "../repository/SettingsRepo.js";
+import { setReactionRate } from '../services/SettingsService.js';
 
 const choices = [
     { name: 'Normal', value: ReactionRate.NORMAL },
@@ -28,9 +28,7 @@ export const command: Command = {
 
             interaction.reply(`Reaction rate is set to: **${rate.name}**`);
         } else {
-            await setReactionRate(ReactionRate[choice]);
-
-            client.reactionRate = choice;
+            await setReactionRate({ rate: ReactionRate[choice] })
 
             const rate = choices.find(x => x.value === choice);
 

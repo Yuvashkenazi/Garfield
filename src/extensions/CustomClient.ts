@@ -37,6 +37,8 @@ export class CustomClient extends Client implements SettingsModel {
     theComicChannel: TextChannel;
     mimamuChannel: TextChannel;
 
+    ChatTheme: string;
+
     constructor(clientOptions: ClientOptions) {
         super(clientOptions);
     }

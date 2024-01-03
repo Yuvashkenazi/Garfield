@@ -1,7 +1,7 @@
 import { Event, ClientReadyParams } from '../types/Event.js';
 import { Events } from "discord.js";
 import { channelIds } from '../index.js';
-import { getSettings } from "../repository/SettingsRepo.js";
+import { getSettings, getGuildMemebers } from '../services/SettingsService.js';
 import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
 import { newUsersCheck } from "../repository/UserRepo.js";
@@ -16,9 +16,7 @@ export const event: Event = {
 
         await initCheck();
 
-        const [guild] = client.guilds.cache.values();
-
-        const members = await guild.members.fetch();
+        const members = await getGuildMemebers();
 
         const users = members.map(x => x.user);
 

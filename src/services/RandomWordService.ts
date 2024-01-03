@@ -1,10 +1,9 @@
+import { client } from '../index.js';
 import { Message, TextChannel } from 'discord.js';
-import { getSettings } from '../repository/SettingsRepo.js';
 import { getList, addWord } from "../repository/WordRepo.js";
 import { getRandomInteger } from "../utils/Common.js";
 import { WordRate } from "../constants/WordRate.js";
 import { ReactionRate } from "../constants/ReactionRate.js";
-import { logger } from '../utils/LoggingHelper.js';
 
 const NEXT_WORD_CHANCE = 0.87;
 const MESSAGE_LENGTH_LIMIT = 2000;
@@ -71,14 +70,7 @@ export function randomReactionToMsg(msg: Message, mode: ReactionRate) {
 }
 
 export async function sendWord(ch: TextChannel): Promise<void> {
-    const settings = await getSettings();
-
-    if (!settings) {
-        logger.error('Settings not found!');
-        return;
-    }
-
-    const rate = getWordPostingRate(WordRate[settings.wordRate]);
+    const rate = getWordPostingRate(WordRate[client.wordRate]);
 
     if (!rate || !postCheck(rate)) {
         return;

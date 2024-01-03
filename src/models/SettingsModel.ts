@@ -9,4 +9,5 @@ export interface SettingsModel {
     isMangaOn: boolean;
     isMorningSongsOn: boolean;
     MiMaMuNumber: number;
+    ChatTheme: string;
 }

@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 import { exists, getFilePath, readDir, deleteDir, join } from '../repository/FileRepo.js';
 import { FileBasePaths } from "../constants/FileBasepaths.js";
-import { getSettings, setDailyMiMaMuId, incrementMiMaMuNumber } from "../repository/SettingsRepo.js";
+import { setDailyMiMaMuId, incrementMiMaMuNumber } from '../services/SettingsService.js';
 import {
     find as findUser,
     getCoreMembers,
@@ -42,7 +42,7 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
     await resetDailyMiMaMuGuessCount();
     await resetDailyMiMaMuGuesses();
 
-    const { MiMaMuNumber, dailyMiMaMuId: previousMiMaMuId } = { ...await getSettings() } as SettingsModel;
+    const { MiMaMuNumber, dailyMiMaMuId: previousMiMaMuId } = { ...client };
 
     if (previousMiMaMuId) {
         const { answer: previousAnswer } = { ...await findMiMaMu({ id: previousMiMaMuId }) } as MiMaMuModel;
@@ -57,11 +57,11 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
     if (!id) {
         await client.mimamuChannel.send({ content: 'No MiMaMu prompts found in database.' });
 
-        await updateDailyMiMaMuId({ id: '' });
+        await setDailyMiMaMuId({ id: '' });
         return;
     }
 
-    await updateDailyMiMaMuId({ id });
+    await setDailyMiMaMuId({ id });
 
     const guessBtn = new ButtonBuilder()
         .setCustomId(customIds.guessBtnId)
@@ -105,7 +105,7 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
 }
 
 export async function guessMiMaMu({ userId, guess }: { userId: string, guess: string }): Promise<string> {
-    const { dailyMiMaMuId, MiMaMuNumber } = { ...await getSettings() } as SettingsModel;
+    const { dailyMiMaMuId, MiMaMuNumber } = { ...client };
 
     if (!dailyMiMaMuId) return 'Today\'s MiMaMu has not been found! Try again tomorrow.';
 
@@ -301,10 +301,4 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
     const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
 
     interaction.reply({ ephemeral: true, content: format(currentUserPrompt, { bold: true }) });
-}
-
-async function updateDailyMiMaMuId({ id }: { id: string }): Promise<void> {
-    await setDailyMiMaMuId({ id });
-
-    client.dailyMiMaMuId = id;
 }

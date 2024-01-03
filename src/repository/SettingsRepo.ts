@@ -23,7 +23,8 @@ export async function getSettings(): Promise<SettingsModel | void> {
       MiMaMuStartTime: '7:00 pm',
       isMangaOn: false,
       isMorningSongsOn: false,
-      MiMaMuNumber: 1
+      MiMaMuNumber: 1,
+      ChatTheme: ''
     }
   })
     .then(data => data[0].toJSON())
@@ -118,6 +119,13 @@ export async function incrementMiMaMuNumber() {
 export async function setDailyMiMaMuId({ id }) {
   await Settings.update({
     dailyMiMaMuId: id
+  }, { where: {} })
+    .catch(err => logger.error(err));
+}
+
+export async function setChatTheme({ theme }: { theme: string }) {
+  await Settings.update({
+    ChatTheme: theme
   }, { where: {} })
     .catch(err => logger.error(err));
 }
