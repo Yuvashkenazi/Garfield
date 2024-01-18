@@ -29,7 +29,7 @@ import {
     deactivate,
     isCreationAllowed
 } from "../repository/MiMaMuRepo.js";
-import { SettingsModel, UserModel, MiMaMuModel } from "../models/index.js";
+import { UserModel, MiMaMuModel } from "../models/index.js";
 import { MiMaMuGuessModal, customIds } from "../components/mimamu/index.js";
 import { removePunctuation, format, at } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";

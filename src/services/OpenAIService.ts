@@ -1,7 +1,7 @@
 import { GuildTextBasedChannel } from 'discord.js';
 import { client } from "../index.js";
 import OpenAI from "openai";
-import { at } from '../utils/Common.js';
+import { at, paginate } from '../utils/Common.js';
 import { logger } from "../utils/LoggingHelper.js";
 
 const { OpenAIApiKey } = client;
@@ -35,17 +35,19 @@ export async function chat({ userId, channel, message, wordsToUse }: {
         return;
     }
 
-    if (chatCompletion.choices[0].message.content.length >= 2_000) {
-        channel.send(`${at(userId)} Generated message was over 2,000 characters long!\n Yuval needs to make it send the message in chunks or something!`);
-        return;
-    }
+    let response = chatCompletion.choices[0].message.content;
 
-    channel.send(`${at(userId)} ${chatCompletion.choices[0].message.content}`);
+    const paginated = paginate(response);
+
+    for (const page of paginated) {
+        channel.send(page);
+    }
 }
 
 export async function generateImage({ prompt, n }: { prompt: string, n: number }): Promise<OpenAI.Images.ImagesResponse & { error: string }> {
     let error = '';
     const response = await openai.images.generate({
+        model: 'dall-e-3',
         prompt,
         n,
         size: "1024x1024"

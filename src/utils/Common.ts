@@ -1,3 +1,5 @@
+const PAGINATION_BREAKPOING = 1_990;
+
 export function isDevEnv(): boolean {
     return process.env.NODE_ENV === "DEV";
 }
@@ -71,4 +73,35 @@ export function link(link: string, url: string): string {
 
 export function list(arr: string[]): string {
     return arr.reduce((acc, curr) => acc += `- ${curr}\n`, '');
+}
+
+export function paginate(str: string): string[] {
+    if (str.length <= PAGINATION_BREAKPOING) return [str];
+
+    const pages = [];
+
+    const pageSize = Math.ceil(str.length / (PAGINATION_BREAKPOING));
+
+    const addPageNumber: (current: number, max: number) => string =
+        (current, max) => `\n**${current}/${max}**`;
+
+    const parts = chunkString(str, PAGINATION_BREAKPOING)
+        .map((x, i) => x.concat(addPageNumber(i + 1, pageSize)));
+
+    return parts;
+}
+
+function chunkString(str: string, chunkSize: number): string[] {
+    const chunks = [];
+    while (str) {
+        if (str.length < chunkSize) {
+            chunks.push(str);
+            break;
+        } else {
+            chunks.push(str.substring(0, chunkSize));
+            str = str.substring(chunkSize);
+        }
+    }
+
+    return chunks;
 }
