@@ -1,4 +1,4 @@
-import { PathLike, readdirSync, unlinkSync, rmSync, existsSync, Dirent } from 'fs';
+import { PathLike, readdirSync, unlinkSync, mkdirSync, rmSync, existsSync, Dirent } from 'fs';
 import fs from 'fs/promises';
 import { sep, basename, resolve, join as pathJoin } from 'path';
 import { isDevEnv } from '../utils/Common.js';
@@ -68,6 +68,10 @@ export async function append(filePath: PathLike, data: string | Uint8Array) {
 
 export function deleteFile(filePath: PathLike): void {
     return unlinkSync(filePath);
+}
+
+export function mkdir(dirPath: PathLike): string {
+    return mkdirSync(dirPath, { recursive: true });
 }
 
 export function deleteDir(dirPath: PathLike): void {

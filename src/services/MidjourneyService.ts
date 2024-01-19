@@ -1,25 +1,19 @@
 import { client } from "../index.js";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ComponentType, User } from "discord.js";
 import { v4 as uuid } from 'uuid';
-import { FileBasePaths } from "../constants/FileBasepaths.js";
-import { getFilePath, exists, join } from '../repository/FileRepo.js';
-import { create } from '../repository/MiMaMuRepo.js';
+import { exists, join } from '../repository/FileRepo.js';
 import { MiMaMuPromptModal, customIds } from "../components/mimamu/index.js";
-import { MidjourneyStyles } from '../constants/MidjourneyStyles.js';
+import { MiMaMuStyles } from '../constants/MiMaMuStyles.js';
+import { handlePromptModalSubmit, MIMAMU_BASE_PATH, MiMaMuOptions } from "./MiMaMuService.js";
 import { logger } from "../utils/LoggingHelper.js";
 
 type UpscalePick = '1' | '2' | '3' | '4';
-export type MidjourneyOptions = {
-    style: string;
-    chaos?: number
-    weird?: number
-};
+
 const INTERACTION_TIMEOUT = 900_000;
-const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const BASE_URL = 'http://localhost:3001';
 const headers = new Headers({ 'Content-Type': 'application/json' });
 
-export async function imagine({ answer, user, options }: { answer: string, user: User, options: MidjourneyOptions }) {
+export async function imagine({ answer, user, options }: { answer: string, user: User, options: MiMaMuOptions }) {
     const params = buildParameters(options);
 
     const data = { id: uuid(), prompt: `${answer} ${params}` };
@@ -152,61 +146,9 @@ export async function upscale({ id, pick }: { id: string, pick: UpscalePick }) {
     }).catch(err => logger.error(err));
 }
 
-async function handlePromptModalSubmit({ id, answer, prompt, author }:
-    { id: string, answer: string, prompt: string, author: string }):
-    Promise<{ success: boolean, msg: string }> {
-    const splitPrompt = prompt.split(' ').filter(x => x !== '');
-    const splitAnswer = answer.split(' ').filter(x => x !== '');
-    const errors: string[] = [];
-
-    if (splitAnswer.length !== splitPrompt.length) {
-        errors.push('Entered prompt must have the same number of words as original prompt');
-    }
-
-    if (!prompt.includes('*')) {
-        errors.push('Entered prompt must include at least one hidden word.');
-    }
-
-    let isWordMismatch = false;
-    for (let i = 0; i < splitAnswer.length; i++) {
-        if (splitPrompt[i] === undefined) continue;
-        if (splitPrompt[i] !== splitAnswer[i] && !splitPrompt[i].includes('*')) {
-            isWordMismatch = true;
-        }
-    }
-
-    if (isWordMismatch) {
-        errors.push('Entered prompt does not match original answer. Make sure to only replace words with an * and leave all other words exactly as they are.');
-    }
-
-    const isValidPrompt = errors.length === 0;
-
-    if (!isValidPrompt) {
-        errors.unshift('**Errors found:**');
-        return {
-            success: false,
-            msg: errors.join('\n- ')
-        };
-    }
-    else {
-        const isCreateSuccess = await create({ id, answer, prompt, author });
-
-        if (!isCreateSuccess) {
-            return {
-                success: false,
-                msg: 'Prompt creation failed. Prompt limit may have been reached.'
-            };
-        }
-
-        return {
-            success: true,
-            msg: 'Your submission was received successfully!'
-        };
-    }
-}
-
 function getPickedUpscale(customId: string): UpscalePick {
     switch (customId.slice(-1)) {
+        default:
         case '1':
             return '1';
         case '2':
@@ -218,28 +160,28 @@ function getPickedUpscale(customId: string): UpscalePick {
     }
 }
 
-function buildParameters(options: MidjourneyOptions): string {
+function buildParameters(options: MiMaMuOptions): string {
     let style = '';
     let chaos = '';
     let weird = '';
 
     switch (options.style) {
-        case MidjourneyStyles.MJ_RAW:
+        case MiMaMuStyles.MJ_RAW:
             style = '--style raw';
             break;
-        case MidjourneyStyles.NIJI_DEFAULT:
+        case MiMaMuStyles.NIJI_DEFAULT:
             style = '--niji 5';
             break;
-        case MidjourneyStyles.NIJI_CUTE:
+        case MiMaMuStyles.NIJI_CUTE:
             style = '--niji 5 --style cute';
             break;
-        case MidjourneyStyles.NIJI_SCENIC:
+        case MiMaMuStyles.NIJI_SCENIC:
             style = '--niji 5 --style scenic';
             break;
-        case MidjourneyStyles.NIJI_EXPRESSIVE:
+        case MiMaMuStyles.NIJI_EXPRESSIVE:
             style = '--niji 5 --style expressive';
             break;
-        case MidjourneyStyles.MJ_DEFAULT:
+        case MiMaMuStyles.MJ_DEFAULT:
         default:
             break;
     }

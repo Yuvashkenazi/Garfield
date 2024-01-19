@@ -1,4 +1,4 @@
-const PAGINATION_BREAKPOING = 1_990;
+const PAGINATION_BREAKPOING = 1_950;
 
 export function isDevEnv(): boolean {
     return process.env.NODE_ENV === "DEV";
@@ -77,8 +77,6 @@ export function list(arr: string[]): string {
 
 export function paginate(str: string): string[] {
     if (str.length <= PAGINATION_BREAKPOING) return [str];
-
-    const pages = [];
 
     const pageSize = Math.ceil(str.length / (PAGINATION_BREAKPOING));
 

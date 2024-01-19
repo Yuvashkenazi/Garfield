@@ -1,5 +1,6 @@
 import { client } from "../index.js";
 import {
+    User,
     EmbedBuilder,
     AttachmentBuilder,
     ButtonBuilder,
@@ -9,8 +10,10 @@ import {
     ButtonInteraction,
     ModalSubmitInteraction
 } from "discord.js";
-import { exists, getFilePath, readDir, deleteDir, join } from '../repository/FileRepo.js';
+import { v4 as uuid } from 'uuid';
+import { exists, getFilePath, readDir, deleteDir, join, mkdir } from '../repository/FileRepo.js';
 import { FileBasePaths } from "../constants/FileBasepaths.js";
+import { MiMaMuStyles } from "../constants/MiMaMuStyles.js";
 import { setDailyMiMaMuId, incrementMiMaMuNumber } from '../services/SettingsService.js';
 import {
     find as findUser,
@@ -27,16 +30,27 @@ import {
     getLatest,
     getRandom,
     deactivate,
-    isCreationAllowed
+    isCreationAllowed,
+    create
 } from "../repository/MiMaMuRepo.js";
 import { UserModel, MiMaMuModel } from "../models/index.js";
-import { MiMaMuGuessModal, customIds } from "../components/mimamu/index.js";
+import { MiMaMuGuessModal, MiMaMuPromptModal, customIds } from "../components/mimamu/index.js";
 import { removePunctuation, format, at } from "../utils/Common.js";
 import { logger } from "../utils/LoggingHelper.js";
-import { imagine, MidjourneyOptions } from "./MidjourneyService.js";
+import { imagine } from "./MidjourneyService.js";
+import { generateImage } from "./OpenAIService.js";
+import { saveWebFile } from "./WebServices.js";
+import OpenAI from "openai";
 
-const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
+export type MiMaMuOptions = {
+    style: string;
+    chaos?: number
+    weird?: number
+};
+
+export const MIMAMU_BASE_PATH = getFilePath(FileBasePaths.MiMaMu);
 const HIDDEN_WORD_MASK = '*';
+const MODAL_TIMEOUT = 300_000;
 
 export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { isLightning: false }): Promise<void> {
     await resetDailyMiMaMuGuessCount();
@@ -172,7 +186,7 @@ export async function deleteDeactivatedImages(): Promise<void> {
     }
 }
 
-export async function addMiMaMuPrompt({ interaction, answer, options }: { interaction: ChatInputCommandInteraction, answer: string, options: MidjourneyOptions }): Promise<void> {
+export async function addMiMaMuPrompt({ interaction, answer, options }: { interaction: ChatInputCommandInteraction, answer: string, options: MiMaMuOptions }): Promise<void> {
     const allowed = await isCreationAllowed();
 
     if (!allowed) {
@@ -180,9 +194,161 @@ export async function addMiMaMuPrompt({ interaction, answer, options }: { intera
         return;
     }
 
-    await interaction.reply({ ephemeral: true, content: 'Your request has been forwarded to the midjourney server. You will receive a DM to complete your prompt shortly.' });
+    await interaction.reply({ ephemeral: true, content: 'Your request has been accepted. You will receive a DM to complete your prompt shortly.' });
 
-    await imagine({ answer, user: interaction.user, options });
+    if (options.style === MiMaMuStyles.DALLE3) {
+        await imagineDallE({ answer, user: interaction.user });
+    } else {
+        await imagine({ answer, user: interaction.user, options });
+    }
+}
+
+async function imagineDallE({ answer, user }: { answer: string, user: User }): Promise<void> {
+    const images: OpenAI.Images.Image[] = [];
+    for (const _ of [...Array(3).keys()]) {
+        const n = 1;
+        const img = await generateImage({ prompt: answer, n });
+
+        if (!img.error && img.data.length === n) images.push(img.data[0]);
+        else {
+            await client.users.send(user.id, img.error);
+            return;
+        }
+    }
+
+    const selectABtn = new ButtonBuilder()
+        .setCustomId('select-image-a')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('A')
+
+    const selectBBtn = new ButtonBuilder()
+        .setCustomId('select-image-b')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('B')
+
+    const selectCBtn = new ButtonBuilder()
+        .setCustomId('select-image-c')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('C')
+
+    const btnRow = new ActionRowBuilder<ButtonBuilder>().addComponents([selectABtn, selectBBtn, selectCBtn]);
+
+    const embedA = new EmbedBuilder()
+        .setTitle('Option A')
+        .setImage(images[0].url)
+        .setFooter({ text: images[0].revised_prompt });
+
+    const embedB = new EmbedBuilder()
+        .setTitle('Option B')
+        .setImage(images[1].url)
+        .setFooter({ text: images[1].revised_prompt });
+
+    const embedC = new EmbedBuilder()
+        .setTitle('Option C')
+        .setImage(images[2].url)
+        .setFooter({ text: images[2].revised_prompt });
+
+    const msg = await client.users.send(user.id, { embeds: [embedA, embedB, embedC], components: [btnRow] });
+
+    const collector = msg.createMessageComponentCollector({ filter: (u) => u.user.id === user.id });
+
+    collector.on('collect', async (collectedInteraction) => {
+        const modal = MiMaMuPromptModal(answer);
+        collectedInteraction.showModal(modal);
+
+        const filter = (cld) => cld.customId === customIds.promptModalId;
+        collectedInteraction.awaitModalSubmit({ filter, time: MODAL_TIMEOUT })
+            .then(async submitInteraction => {
+                const fields = submitInteraction.fields;
+                const imgSelected = collectedInteraction.customId.split('-').pop().toUpperCase();
+                const prompt = fields.getTextInputValue(customIds.promptCreateId);
+                const id = uuid();
+
+                const result = await handlePromptModalSubmit({ id, answer, prompt, author: user.username });
+
+                if (result.success) {
+                    collector.stop();
+
+                    selectABtn.setDisabled(true);
+                    selectBBtn.setDisabled(true);
+                    selectCBtn.setDisabled(true);
+
+                    collectedInteraction.editReply({ embeds: [embedA, embedB, embedC], components: [btnRow] });
+
+                    let imgToSave = '';
+                    switch (imgSelected) {
+                        case 'A':
+                            imgToSave = images[0].url;
+                            break;
+                        case 'B':
+                            imgToSave = images[1].url;
+                            break;
+                        case 'C':
+                            imgToSave = images[2].url;
+                            break;
+                    }
+
+                    mkdir(join(MIMAMU_BASE_PATH, id));
+                    await saveWebFile({ url: imgToSave, path: join(MIMAMU_BASE_PATH, id, 'upscale.png') });
+                }
+                await submitInteraction.reply(result.msg);
+            })
+            .catch(err => logger.error(err));
+    });
+
+}
+
+export async function handlePromptModalSubmit({ id, answer, prompt, author }:
+    { id: string, answer: string, prompt: string, author: string }):
+    Promise<{ success: boolean, msg: string }> {
+    const splitPrompt = prompt.split(' ').filter(x => x !== '');
+    const splitAnswer = answer.split(' ').filter(x => x !== '');
+    const errors: string[] = [];
+
+    if (splitAnswer.length !== splitPrompt.length) {
+        errors.push('Entered prompt must have the same number of words as original prompt');
+    }
+
+    if (!prompt.includes('*')) {
+        errors.push('Entered prompt must include at least one hidden word.');
+    }
+
+    let isWordMismatch = false;
+    for (let i = 0; i < splitAnswer.length; i++) {
+        if (splitPrompt[i] === undefined) continue;
+        if (splitPrompt[i] !== splitAnswer[i] && !splitPrompt[i].includes('*')) {
+            isWordMismatch = true;
+        }
+    }
+
+    if (isWordMismatch) {
+        errors.push('Entered prompt does not match original answer. Make sure to only replace words with an * and leave all other words exactly as they are.');
+    }
+
+    const isValidPrompt = errors.length === 0;
+
+    if (!isValidPrompt) {
+        errors.unshift('**Errors found:**');
+        return {
+            success: false,
+            msg: errors.join('\n- ')
+        };
+    }
+    else {
+        const isCreateSuccess = await create({ id, answer, prompt, author });
+
+        if (!isCreateSuccess) {
+            return {
+                success: false,
+                msg: 'Prompt creation failed. Prompt limit may have been reached.'
+            };
+        }
+
+        return {
+            success: true,
+            msg: 'Your submission was received successfully!'
+        };
+    }
 }
 
 export async function getAuthorCount(): Promise<{ author: string, count: number }[]> {

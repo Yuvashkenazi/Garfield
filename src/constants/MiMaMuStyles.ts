@@ -1,4 +1,5 @@
-export enum MidjourneyStyles {
+export enum MiMaMuStyles {
+    DALLE3 = 'dall-e-3',
     MJ_DEFAULT = 'mj-default',
     MJ_RAW = 'mj-raw',
     NIJI_DEFAULT = 'niji-default',

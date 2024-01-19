@@ -29,6 +29,11 @@ export const command: Command = {
         const avatar = interaction.options.getAttachment('avatar');
         const identity = interaction.options.getString('identity');
 
+        if (!name && !avatar && !identity) {
+            interaction.reply('I have not been updated.');
+            return;
+        };
+
         if (name) {
             await botGuildMember.setNickname(name);
         }
