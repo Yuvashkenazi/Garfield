@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { find, updateMastermindData } from "../repository/UserRepo.js";
+import { find, updateMastermindData } from "../services/UserService.js";
 import { getRandomInteger } from "../utils/Common.js";
 import { UserModel } from "../models/UserModel.js";
 

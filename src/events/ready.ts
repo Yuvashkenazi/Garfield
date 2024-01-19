@@ -4,7 +4,7 @@ import { channelIds } from '../index.js';
 import { getSettings, getGuildMemebers } from '../services/SettingsService.js';
 import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
-import { newUsersCheck } from "../repository/UserRepo.js";
+import { newUsersCheck } from "../services/UserService.js";
 import { restartInterval } from "../services/IntervalService.js";
 import { logger } from "../utils/LoggingHelper.js";
 

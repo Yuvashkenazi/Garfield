@@ -22,7 +22,7 @@ import {
     resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount,
     updateLatestMiMaMuGuess
-} from "../repository/UserRepo.js";
+} from "../services/UserService.js";
 import {
     find as findMiMaMu,
     findAll as findAllMiMaMus,
