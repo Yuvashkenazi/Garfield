@@ -1,4 +1,4 @@
-FROM node:21.6.1
+FROM node:21.7.2
 
 WORKDIR /usr/src/bot
 
