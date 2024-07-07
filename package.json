@@ -30,7 +30,7 @@
     "openai": "^4.24.7",
     "puppeteer": "^22.0.0",
     "sequelize": "^6.37.3",
-    "sqlite3": "^5.1.6",
+    "sqlite3": "^5.1.7",
     "systeminformation": "^5.21.24",
     "unofficial-jisho-api": "^2.3.4",
     "uuid": "^9.0.1",
