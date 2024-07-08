@@ -47,6 +47,6 @@
     "babel-loader": "^9.1.2",
     "eslint": "^8.56.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.3"
   }
 }
