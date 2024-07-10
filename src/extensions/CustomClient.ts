@@ -93,6 +93,7 @@ export class CustomClient extends Client implements SettingsModel {
         this.MiMaMuStartTime = settings.MiMaMuStartTime;
         this.MiMaMuNumber = settings.MiMaMuNumber;
         this.dailyMiMaMuId = settings.dailyMiMaMuId;
+        this.ChatTheme = settings.ChatTheme;
     }
 
     //this has to happen BEFORE commands get loaded in
