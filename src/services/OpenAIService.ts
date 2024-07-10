@@ -3,6 +3,7 @@ import { client } from "../index.js";
 import OpenAI from "openai";
 import { at, paginate } from '../utils/Common.js';
 import { logger } from "../utils/LoggingHelper.js";
+import { ChatCompletionContentPart } from 'openai/resources/chat/completions.js';
 
 const { OpenAIApiKey } = client;
 
@@ -10,22 +11,30 @@ const openai = new OpenAI({
     apiKey: OpenAIApiKey ?? '0'
 });
 
-export async function chat({ userId, channel, message, wordsToUse }: {
+export async function chat({ userId, channel, message, wordsToUse, imageUrl = '' }: {
     userId: string,
     channel: GuildTextBasedChannel,
     message: string,
-    wordsToUse: string
+    wordsToUse: string,
+    imageUrl?: string
 }): Promise<void> {
-    const identity = `${client.ChatTheme}
-    Try to fit the following into your replies:
+    const identity = `${client.ChatTheme ?? ''}
+    You must fit the following space-separated words and links into your response, work them in to the sentence naturally, use them all even if they are nonsensical:
     ${wordsToUse}
     `;
+
+    const content: ChatCompletionContentPart[] = [{ type: 'text', text: message }];
+
+    if (!!imageUrl) {
+        const imageObj: ChatCompletionContentPart = { type: 'image_url', image_url: { url: imageUrl } };
+        content.push(imageObj);
+    }
 
     const chatCompletion = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [
             { role: 'system', content: identity },
-            { role: 'user', content: message }
+            { role: 'user', content }
         ]
     })
         .catch(err => console.error(err));

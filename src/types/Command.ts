@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 import { CustomClient } from '../extensions/CustomClient.js';
 
 interface CommandParams {
@@ -7,6 +7,6 @@ interface CommandParams {
 }
 
 export interface Command {
-    data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+    data: SlashCommandOptionsOnlyBuilder;
     execute: (params: CommandParams) => Promise<void>;
 }

@@ -4,7 +4,7 @@ WORKDIR /usr/src/bot
 
 # Copy and Install our bot
 COPY package.json /usr/src/bot
-RUN npm install
+RUN npm install --build-from-source --sqlite=/usr/bin sqlite3
 
 COPY . /usr/src/bot
 

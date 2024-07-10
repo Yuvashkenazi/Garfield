@@ -6,7 +6,6 @@ import { MondayQuotes } from "../constants/MondayQuotes.js";
 import { sendComicVote } from "../services/VoteService.js";
 import { birthdayCheck } from "../services/BirthdayService.js";
 import { sendWord } from "../services/RandomWordService.js";
-import { nextManga } from "../services/MangaService.js";
 import { checkTemp } from "../services/TemperatureService.js";
 import { playMiMaMu, deleteDeactivatedImages } from "./MiMaMuService.js";
 
@@ -66,12 +65,6 @@ async function onInterval() {
         const temp = await checkTemp();
 
         client.theSpamChannel.send(`My temp: ${temp.main.toFixed(2)}°C`);
-    }
-
-    if (client.isMangaOn
-        && hrNumber % 2 === 0
-        && currentMin === '00') {
-        nextManga(client.mangaChannel);
     }
 
     if (client.isVoteOn && currentHrMin === client.voteStartTime) {
