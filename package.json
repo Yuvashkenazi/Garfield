@@ -27,7 +27,7 @@
     "moment-timezone": "^0.5.45",
     "nconf": "^0.12.1",
     "node-fetch": "^3.3.2",
-    "openai": "^4.52.4",
+    "openai": "^4.53.0",
     "sequelize": "^6.37.3",
     "sqlite3": "5.0.2",
     "systeminformation": "^5.21.24",
