@@ -17,7 +17,6 @@ import { MiMaMuStyles } from "../constants/MiMaMuStyles.js";
 import { setDailyMiMaMuId, incrementMiMaMuNumber } from '../services/SettingsService.js';
 import {
     find as findUser,
-    getCoreMembers,
     resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount,
@@ -111,8 +110,7 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
 
     await thread.send({ embeds: [embed], files: [file], components: [btnRow] });
 
-    const coreMembers = await getCoreMembers();
-    coreMembers.forEach(async x => await thread.members.add(x.id));
+    client.mimamuRole.members.forEach(async x => await thread.members.add(x.id));
 
     await deactivate({ id });
     await incrementMiMaMuNumber();

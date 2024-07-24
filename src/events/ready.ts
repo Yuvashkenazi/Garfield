@@ -1,6 +1,6 @@
 import { Event, ClientReadyParams } from '../types/Event.js';
 import { Events } from "discord.js";
-import { channelIds } from '../index.js';
+import { channelIds, roleIds } from '../index.js';
 import { getSettings, getGuildMemebers } from '../services/SettingsService.js';
 import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
@@ -26,6 +26,7 @@ export const event: Event = {
 
         settings && client.setSettings(settings);
         client.loadChannels(channelIds);
+        client.loadRoles(roleIds);
 
         restartInterval();
 

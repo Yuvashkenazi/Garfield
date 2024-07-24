@@ -22,6 +22,7 @@ export interface Config {
   mangaChannelID: string;
   theComicChannelID: string;
   mimamuChannelId: string;
+  mimamuRoleId: string;
 }
 
 export const client = new CustomClient({
@@ -41,6 +42,7 @@ export const client = new CustomClient({
 });
 
 export const channelIds = new Map<string, string>();
+export const roleIds = new Map<string, string>();
 
 (async () => {
   logger.info(`Environment: ${isDevEnv() ? 'DEV' : 'PROD'}`);
@@ -67,6 +69,8 @@ export const channelIds = new Map<string, string>();
   channelIds.set('mangaChannel', config.mangaChannelID);
   channelIds.set('theComicChannel', config.theComicChannelID);
   channelIds.set('mimamuChannel', config.mimamuChannelId);
+
+  roleIds.set('mimamuRole', config.mimamuRoleId);
 
   client.loadConfig(config);
 

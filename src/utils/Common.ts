@@ -59,8 +59,8 @@ export function format(s: string, { italics = false, bold = false, underline = f
     return s;
 }
 
-export function at(id: string): string {
-    return `<@${id}>`;
+export function at(id: string, role?: boolean): string {
+    return `<@${role ? '&' : ''}${id}>`;
 }
 
 export function header(s: string, size: 1 | 2 | 3): string {

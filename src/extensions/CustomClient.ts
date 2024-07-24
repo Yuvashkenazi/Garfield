@@ -1,4 +1,4 @@
-import { BaseInteraction, Client, ClientOptions, Collection, GuildMember, Message, TextChannel } from 'discord.js';
+import { BaseInteraction, Client, ClientOptions, Collection, GuildMember, Message, Role, TextChannel } from 'discord.js';
 import { Config } from '../index.js';
 import { Command } from '../types/Command.js';
 import { Event } from '../types/Event.js';
@@ -36,6 +36,8 @@ export class CustomClient extends Client implements SettingsModel {
     mangaChannel: TextChannel;
     theComicChannel: TextChannel;
     mimamuChannel: TextChannel;
+
+    mimamuRole: Role;
 
     ChatTheme: string;
 
@@ -109,5 +111,11 @@ export class CustomClient extends Client implements SettingsModel {
     //this has to happen AFTER client ready event is emitted (logged in successfully)
     loadChannels(channelIds: Map<string, string>) {
         channelIds.forEach((value, key) => this[key] = this.channels.cache.get(value));
+    }
+
+    loadRoles(roleIds: Map<string, string>) {
+        const [guild] = this.guilds.cache.values();
+
+        roleIds.forEach((value, key) => this[key] = guild.roles.cache.get(value))
     }
 }

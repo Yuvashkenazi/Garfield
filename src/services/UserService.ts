@@ -3,7 +3,6 @@ import {
     find as _find,
     newUsersCheck as _newUsersCheck,
     updateMastermindData as _updateMastermindData,
-    getCoreMembers as _getCoreMembers,
     resetDailyMiMaMuGuessCount as _resetDailyMiMaMuGuessCount,
     resetDailyMiMaMuGuesses as _resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount as _incrementDailyMiMaMuGuessCount,
@@ -22,10 +21,6 @@ export async function newUsersCheck(users: User[]) {
 export async function updateMastermindData({ id, gameStarted, answer, attempts }:
     { id: string, gameStarted: boolean, answer: string, attempts: number }) {
     return await _updateMastermindData({ id, gameStarted, answer, attempts });
-}
-
-export async function getCoreMembers() {
-    return await _getCoreMembers();
 }
 
 export async function resetDailyMiMaMuGuessCount() {

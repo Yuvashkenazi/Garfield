@@ -21,11 +21,13 @@ export const command: Command = {
         const message = interaction.options.getString('message');
         const image = interaction.options.getAttachment('image');
 
+        await interaction.deferReply();
+
         const wordsToUse = await generateSentence();
 
         const files = image?.url ? [new AttachmentBuilder(image?.url)] : [];
 
-        await interaction.reply({
+        await interaction.editReply({
             files,
             content: `
 Responding to: ${format(message, { bold: true })}
