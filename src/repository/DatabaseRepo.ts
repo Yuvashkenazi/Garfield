@@ -97,6 +97,9 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    birthday: {
+        type: DataTypes.DATE,
+    },
     gameStarted: {
         type: DataTypes.BOOLEAN
     },

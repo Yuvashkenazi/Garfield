@@ -1,5 +1,6 @@
 import { User } from 'discord.js';
 import {
+    findAll as _getAll,
     find as _find,
     newUsersCheck as _newUsersCheck,
     updateMastermindData as _updateMastermindData,
@@ -7,8 +8,12 @@ import {
     resetDailyMiMaMuGuesses as _resetDailyMiMaMuGuesses,
     incrementDailyMiMaMuGuessCount as _incrementDailyMiMaMuGuessCount,
     updateLatestMiMaMuGuess as _updateLatestMiMaMuGuess,
+    setBirthday as _setBirthday
 } from '../repository/UserRepo.js'
 
+export async function getAll() {
+    return await _getAll({ orderBy: 'username' });
+}
 
 export async function find(id: string) {
     return await _find(id);
@@ -37,4 +42,8 @@ export async function incrementDailyMiMaMuGuessCount({ id }: { id: string }) {
 
 export async function updateLatestMiMaMuGuess({ id, guess }: { id: string, guess: string }) {
     return await _updateLatestMiMaMuGuess({ id, guess });
+}
+
+export async function setBirthday({ id, birthday }: { id: string, birthday: Date }) {
+    return await _setBirthday({ id, birthday: birthday.valueOf() });
 }

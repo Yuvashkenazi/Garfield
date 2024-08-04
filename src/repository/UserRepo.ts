@@ -30,6 +30,16 @@ export async function newUsersCheck(users: DiscordUser[]): Promise<void> {
   );
 }
 
+export async function find(id: string): Promise<UserModel | void> {
+  return await User.findOne({
+    where: { id }
+  })
+    .then(data => data && data.toJSON())
+    .catch(err => {
+      logger.error(err);
+    });
+}
+
 export async function findAll({ orderBy }: { orderBy?: keyof UserModel }): Promise<UserModel[]> {
   return await User.findAll({
     where: {},
@@ -39,16 +49,6 @@ export async function findAll({ orderBy }: { orderBy?: keyof UserModel }): Promi
     .catch(err => {
       logger.error(err);
       return [];
-    });
-}
-
-export async function find(id: string): Promise<UserModel | void> {
-  return await User.findOne({
-    where: { id }
-  })
-    .then(data => data && data.toJSON())
-    .catch(err => {
-      logger.error(err);
     });
 }
 
@@ -87,5 +87,12 @@ export async function resetDailyMiMaMuGuessCount() {
 
 export async function incrementDailyMiMaMuGuessCount({ id }: { id: string }): Promise<void> {
   await User.increment('dailyMiMaMuGuessCount', { where: { id } })
+    .catch(err => logger.error(err));
+}
+
+export async function setBirthday({ id, birthday }: { id: string, birthday: number }) {
+  await User.update({
+    birthday
+  }, { where: { id } })
     .catch(err => logger.error(err));
 }
