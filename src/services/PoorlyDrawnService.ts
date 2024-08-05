@@ -33,9 +33,7 @@ async function getFromArchive(): Promise<string> {
 
       const $randomComic = $($galleryItems[randomIndex]);
 
-      const href = $randomComic.find('a')
-        .filter((indx, el) => $(el).attr('href').split('/').includes('wp-content'))
-        .attr('href');
+      const href = $randomComic.find('img').attr('data-src');
 
       return href;
     })
