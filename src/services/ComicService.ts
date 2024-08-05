@@ -44,7 +44,7 @@ async function isComicFound(url: string, comic: string) {
 
       return comicName === comicObj.displayName;
     }).catch(err => {
-      logger.error(err)
+      logger.error(err);
     });
 }
 
