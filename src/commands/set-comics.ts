@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
-import { updateNames } from "../repository/VotesRepo.js";
-import { Comics } from "../constants/Comics.js";
+import { setVotingComics } from '../services/VoteService.js';
+import { Comics, getComicDisplayName } from "../constants/Comics.js";
 
 const comics = Object.values(Comics).map(x => {
     return { name: x.displayName, value: x.urlName };
@@ -27,8 +27,11 @@ export const command: Command = {
         const comic1 = interaction.options.getString('comic1');
         const comic2 = interaction.options.getString('comic2');
 
-        await updateNames({ comic1, comic2 });
+        await setVotingComics({ comic1, comic2 });
 
-        interaction.reply(`Comics have been set to ${comic1} vs. ${comic2}`);
+        const comic1DisplayName = getComicDisplayName(comic1);
+        const comic2DisplayName = getComicDisplayName(comic2);
+
+        interaction.reply(`Comics have been set to ${comic1DisplayName} vs. ${comic2DisplayName}`);
     }
 };

@@ -3,6 +3,7 @@ import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { WordRate } from "../constants/WordRate.js";
 import { setWordRate } from '../services/SettingsService.js';
+import { format } from "../utils/Common.js";
 
 const choices = [
     { name: 'Normal', value: WordRate.NORMAL },
@@ -25,13 +26,13 @@ export const command: Command = {
         if (!choice) {
             const rate = choices.find(x => x.value === client.wordRate);
 
-            interaction.reply(`Word rate is set to: **${rate.name}**`);
+            interaction.reply(`Word rate is set to: ${format(rate.name, { bold: true })}`);
         } else {
             await setWordRate({ rate: WordRate[choice] });
 
             const rate = choices.find(x => x.value === choice);
 
-            interaction.reply(`Word rate changed to **${rate.name}**`);
+            interaction.reply(`Word rate changed to ${format(rate.name, { bold: true })}`);
         }
     }
 };

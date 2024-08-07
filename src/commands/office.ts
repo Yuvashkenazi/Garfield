@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import _quotes from '../../quotes/the-office.json';
-import { getRandomInteger } from "../utils/Common.js";
+import { format, getRandomInteger } from "../utils/Common.js";
 
 interface TheOfficeQuotes {
     season: number;
@@ -25,16 +25,21 @@ function randomOffice() {
         RandQuote = randEpQuotes.scenes[randomQuoteInEp];
     }
 
-    let result = `__**Office Quote**__
+    const quoteTitle = format('Office Quote', { underline: true, bold: true });
+    const seasonText = format('Season:', { bold: true });
+    const episodeText = format('Episode:', { bold: true });
+    const epTitleText = format('Title:', { bold: true });
+
+    let result = `${quoteTitle}
   
-        **Season:** ${randEpQuotes.season}
-        **Episode:** ${randEpQuotes.episode}
-        **Title:** ${randEpQuotes.title}
+        ${seasonText} ${randEpQuotes.season}
+        ${episodeText} ${randEpQuotes.episode}
+        ${epTitleText} ${randEpQuotes.title}
         `;
 
     for (let i = 1; i < RandQuote.length; i++) {
         result += '\n\n';
-        result += '**' + RandQuote[i].character + '**';
+        result += format(RandQuote[i].character, { bold: true });
         result += '\n';
         result += RandQuote[i].line;
     }

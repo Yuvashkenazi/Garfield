@@ -60,7 +60,7 @@ export async function playMiMaMu({ isLightning }: { isLightning?: boolean } = { 
     if (previousMiMaMuId) {
         const { answer: previousAnswer } = { ...await findMiMaMu({ id: previousMiMaMuId }) } as MiMaMuModel;
 
-        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n**${previousAnswer}**` });
+        await client.mimamuChannel.send({ content: `MiMaMu #${MiMaMuNumber - 1}'s answer:\n${format(previousAnswer, { bold: true })}` });
     }
 
     const { id, answer, prompt, author } = isLightning ?
@@ -156,8 +156,8 @@ export async function guessMiMaMu({ userId, guess }: { userId: string, guess: st
     }
 
     return won ?
-        `You solved today's MiMaMu! The full prompt was:\n**${currentUserPrompt}**` :
-        `Your current prompt is:\n**${currentUserPrompt}**`
+        `You solved today's MiMaMu! The full prompt was:\n${format(currentUserPrompt, { bold: true })}` :
+        `Your current prompt is:\n${format(currentUserPrompt, { bold: true })}`
 }
 
 export async function deleteDeactivatedImages(): Promise<void> {
@@ -326,7 +326,7 @@ export async function handlePromptModalSubmit({ id, answer, prompt, author }:
     const isValidPrompt = errors.length === 0;
 
     if (!isValidPrompt) {
-        errors.unshift('**Errors found:**');
+        errors.unshift(format('Errors found:', { bold: true }));
         return {
             success: false,
             msg: errors.join('\n- ')
@@ -378,7 +378,9 @@ function getDisplayPrompt({ prompt, answer }: { prompt: string, answer: string }
         }
         else if (x.includes(HIDDEN_WORD_MASK)) {
             const hiddenWordLength = removePunctuation(answerSplit[i]).length;
-            const underscores = `${hiddenLetter.repeat(hiddenWordLength)}(**${hiddenWordLength}**)`
+            const hiddenWordLengthText = format(`(${hiddenWordLength})`, { bold: true });
+
+            const underscores = `${hiddenLetter.repeat(hiddenWordLength)}${hiddenWordLengthText}`
             result += x.replace(HIDDEN_WORD_MASK, underscores);
         }
 

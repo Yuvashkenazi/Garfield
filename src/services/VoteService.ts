@@ -1,16 +1,14 @@
 import { client } from "../index.js";
 import { TextChannel, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { getVotes, updateScore } from "../repository/VotesRepo.js";
-import { groupBy } from "../utils/Common.js";
-import { findComic, getComicObj } from "./ComicService.js";
+import { getVotes, updateNames, updateScore } from "../repository/VotesRepo.js";
+import { groupBy, format } from "../utils/Common.js";
+import { getComicObj } from "./ComicService.js";
 import { ComicInfo } from "../constants/Comics.js";
 import { logger } from "../utils/LoggingHelper.js";
 
 const COMIC_VOTING_PERIOD = 7200000;
 
 export async function sendComicVote() {
-    await setVotingComics();
-
     const comicObj1 = getComicObj(client.comic1);
     const comicObj2 = getComicObj(client.comic2);
 
@@ -95,9 +93,9 @@ export async function sendComicVote() {
                 { name: comicObj2.displayName, value: comic2Score.toString(), inline: true },
                 {
                     name: 'Scoreboard', value: `
-                **${comicObj1.displayName}:** ${comic1}
-                **${comicObj2.displayName}:** ${comic2}
-                **Ties:** ${ties}
+                ${format(comicObj1.displayName, { bold: true })}: ${comic1}
+                ${format(comicObj2.displayName, { bold: true })}: ${comic2}
+                ${format('Ties', { bold: true })}: ${ties}
                 ` },
             ]);
 
@@ -106,8 +104,8 @@ export async function sendComicVote() {
 }
 
 async function postVotingComics(ch: TextChannel, comicObj1: ComicInfo, comicObj2: ComicInfo): Promise<void> {
-    const comic1 = await findComic(comicObj1.urlName);
-    const comic2 = await findComic(comicObj2.urlName);
+    const comic1 = await comicObj1.getRandom();
+    const comic2 = await comicObj2.getRandom();
 
     const embed1 = new EmbedBuilder().setImage(comic1);
     const embed2 = new EmbedBuilder().setImage(comic2);
@@ -116,12 +114,11 @@ async function postVotingComics(ch: TextChannel, comicObj1: ComicInfo, comicObj2
     ch.send({ embeds: [embed2] });
 }
 
-async function setVotingComics(): Promise<void> {
-    const votes = await getVotes();
-    if (!votes) return;
+export async function setVotingComics({ comic1, comic2 }: { comic1: string, comic2: string }): Promise<void> {
+    await updateNames({ comic1, comic2 });
 
-    client.comic1 = votes.comic1Name;
-    client.comic2 = votes.comic2Name;
+    client.comic1 = comic1;
+    client.comic2 = comic2;
 
     logger.info(`Comics set to ${client.comic1} vs. ${client.comic2}`)
 }

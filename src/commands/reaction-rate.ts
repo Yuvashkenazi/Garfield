@@ -3,6 +3,7 @@ import { Command } from "../types/Command.js";
 import { CustomClient } from "../extensions/CustomClient.js";
 import { ReactionRate } from "../constants/ReactionRate.js";
 import { setReactionRate } from '../services/SettingsService.js';
+import { format } from "../utils/Common.js";
 
 const choices = [
     { name: 'Normal', value: ReactionRate.NORMAL },
@@ -26,13 +27,13 @@ export const command: Command = {
         if (!choice) {
             const rate = choices.find(x => x.value === client.reactionRate);
 
-            interaction.reply(`Reaction rate is set to: **${rate.name}**`);
+            interaction.reply(`Reaction rate is set to: ${format(rate.name, { bold: true })}`);
         } else {
             await setReactionRate({ rate: ReactionRate[choice] })
 
             const rate = choices.find(x => x.value === choice);
 
-            interaction.reply(`Reaction rate changed to **${rate.name}**`);
+            interaction.reply(`Reaction rate changed to ${format(rate.name, { bold: true })}`);
         }
     }
 };

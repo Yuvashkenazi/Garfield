@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { toggleMorningSongs } from "../services/SettingsService.js";
+import { format } from "../utils/Common.js";
 
 export const command: Command = {
     data: new SlashCommandBuilder()
@@ -9,6 +10,6 @@ export const command: Command = {
     async execute({ interaction }: { interaction: ChatInputCommandInteraction }) {
         const isMorningSongsOn = await toggleMorningSongs();
 
-        interaction.reply(`Morning songs are now toggled **${isMorningSongsOn ? 'on' : 'off'}**`);
+        interaction.reply(`Morning songs are now toggled ${format(isMorningSongsOn ? 'on' : 'off', { bold: true })}`);
     }
 };

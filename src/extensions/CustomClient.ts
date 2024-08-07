@@ -4,7 +4,7 @@ import { Command } from '../types/Command.js';
 import { Event } from '../types/Event.js';
 import { FileBasePaths } from '../constants/FileBasepaths.js';
 import { loadFiles } from '../repository/FileRepo.js';
-import { SettingsModel } from '../models/index.js';
+import { SettingsModel, VoteModel } from '../models/index.js';
 
 export class CustomClient extends Client implements SettingsModel {
     events: Collection<string, (arg: Message | BaseInteraction) => Promise<void>>;
@@ -96,6 +96,11 @@ export class CustomClient extends Client implements SettingsModel {
         this.MiMaMuNumber = settings.MiMaMuNumber;
         this.dailyMiMaMuId = settings.dailyMiMaMuId;
         this.ChatTheme = settings.ChatTheme;
+    }
+
+    setVote(vote: VoteModel) {
+        this.comic1 = vote.comic1Name;
+        this.comic2 = vote.comic2Name;
     }
 
     //this has to happen BEFORE commands get loaded in

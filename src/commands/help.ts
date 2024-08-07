@@ -60,8 +60,6 @@ Leave rate blank to check current rate.
 
 * garfield: Get a random garfield comic strip.
 
-* dilbert: Get a random dilbert comic strip.
-
 * cal: Get a random calvin and hobbes comic strip.
 
 * fuzzy: Get a random getfuzzy comic strip.

@@ -1,3 +1,7 @@
+import { findComic } from "../services/ComicService";
+import { randomFalseKnees } from "../services/FalseKneesService";
+import { randomPoorlyDrawn } from "../services/PoorlyDrawnService";
+
 const date = new Date();
 
 export type ComicDate = {
@@ -9,8 +13,9 @@ export type ComicDate = {
 export type ComicInfo = {
     displayName: string,
     urlName: string,
-    start: ComicDate;
-    end: ComicDate;
+    start?: ComicDate;
+    end?: ComicDate;
+    getRandom: () => Promise<string>;
 }
 
 const current: ComicDate = {
@@ -27,19 +32,9 @@ export const Garfield: ComicInfo = {
         month: 6,
         day: 19
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Garfield.urlName)
 }
-
-export const Dilbert: ComicInfo = {
-    displayName: 'Dilbert Classics',
-    urlName: 'dilbert-classics',
-    start: {
-        year: 2012,
-        month: 6,
-        day: 13
-    },
-    end: current
-};
 
 export const Calvin: ComicInfo = {
     displayName: 'Calvin and Hobbes',
@@ -49,7 +44,8 @@ export const Calvin: ComicInfo = {
         month: 11,
         day: 18
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Calvin.urlName)
 };
 
 export const Fuzzy: ComicInfo = {
@@ -60,7 +56,8 @@ export const Fuzzy: ComicInfo = {
         month: 9,
         day: 6
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Fuzzy.urlName)
 };
 
 export const BloomCounty: ComicInfo = {
@@ -71,7 +68,8 @@ export const BloomCounty: ComicInfo = {
         month: 12,
         day: 8
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(BloomCounty.urlName)
 };
 
 export const Pearls: ComicInfo = {
@@ -82,7 +80,8 @@ export const Pearls: ComicInfo = {
         month: 1,
         day: 7
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Pearls.urlName)
 };
 
 export const Nancy: ComicInfo = {
@@ -93,7 +92,8 @@ export const Nancy: ComicInfo = {
         month: 1,
         day: 5
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Nancy.urlName)
 };
 
 export const Peanuts: ComicInfo = {
@@ -104,7 +104,8 @@ export const Peanuts: ComicInfo = {
         month: 10,
         day: 2
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Peanuts.urlName)
 };
 
 export const Marmaduke: ComicInfo = {
@@ -115,17 +116,41 @@ export const Marmaduke: ComicInfo = {
         month: 12,
         day: 30
     },
-    end: current
+    end: current,
+    getRandom: async () => await findComic(Marmaduke.urlName)
+};
+
+export const FalseKnees: ComicInfo = {
+    displayName: 'False Knees',
+    urlName: 'false-knees',
+    getRandom: randomFalseKnees
+};
+
+export const PoorlyDrawnLines: ComicInfo = {
+    displayName: 'Poorly Drawn Lines',
+    urlName: 'poorly-drawn-lines',
+    getRandom: randomPoorlyDrawn
 };
 
 export const Comics = {
     Garfield,
-    Dilbert,
     Calvin,
     Fuzzy,
     BloomCounty,
     Pearls,
     Nancy,
     Peanuts,
-    Marmaduke
+    Marmaduke,
+    FalseKnees,
+    PoorlyDrawnLines
+}
+
+export const getComicDisplayName = (urlName: string): string => {
+    if (!urlName) return '';
+
+    const comicList = Object.values(Comics).map(x => {
+        return { name: x.displayName, value: x.urlName };
+    });
+
+    return comicList.find(x => x.value === urlName).name;
 }

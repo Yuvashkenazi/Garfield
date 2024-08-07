@@ -6,6 +6,7 @@ import { initDB } from "../repository/DatabaseRepo.js";
 import { initCheck } from "../repository/WordRepo.js";
 import { newUsersCheck } from "../services/UserService.js";
 import { restartInterval } from "../services/IntervalService.js";
+import { getVotes } from '../repository/VotesRepo.js';
 import { logger } from "../utils/LoggingHelper.js";
 
 export const event: Event = {
@@ -23,8 +24,11 @@ export const event: Event = {
         await newUsersCheck(users);
 
         const settings = await getSettings();
-
         settings && client.setSettings(settings);
+
+        const vote = await getVotes();
+        vote && client.setVote(vote);
+
         client.loadChannels(channelIds);
         client.loadRoles(roleIds);
 
