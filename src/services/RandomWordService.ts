@@ -14,25 +14,34 @@ const WORD_RATE_FAST = 1;
 
 const REACTION_RATE_SLOW = 0.03;
 const REACTION_RATE_NORMAL = 0.25;
-const REACTIONS = ['👍', '💯', '🤣', '😉', '🙃', '🤢', '🤬', '🖕', '😲', '🤔', '🥺', '💀', '🇬🇧',
-    '<:lksquare:1052770092997427270>',
-    '<:scared:489249475630727178>',
-    '<:druff:648258411573542957>',
-    '<:RikaPog:919602162722537523>',
-    '<:cooldude:648264710025642015> ',
-    '<:lol:658032150263758858> ',
-    '<:me:694359303720665154> ',
-    '<:pog:816770866431393802>',
-    '<:sadman:489986970509115402>',
-    '<:yell:658032150829858816>',
-    '<:yuvalok:993559075575058472>',
-    '<:chuck:760973879430348881>',
-    '<:trumpyell:658032150683189269>',
-    '<:me2:1269966754013253632>',
-    '<:sotrue:1269848938161246209>',
-    '<:fuck:1269848644207640657>',
-    '<:what:1269849090498367529>',
+
+const EMOIJIS = ['👍', '💯', '🤣', '😉', '🙃', '🤢', '🤬', '🖕', '😲', '🤔', '🥺', '💀', '🇬🇧'];
+
+const CUSTOM_EMOJI_NAME_FILTER = [
+    'lksquare',
+    'scared',
+    'druff',
+    'RikaPog',
+    'cooldude',
+    'lol',
+    'me',
+    'pog',
+    'sadman',
+    'yell',
+    'yuvalok',
+    'chuck',
+    'trumpyell',
+    'me2',
+    'sotrue',
+    'fuck',
+    'what'
 ];
+
+const CUSTOM_EMOJIS = client.emojis.cache
+    .filter(x => CUSTOM_EMOJI_NAME_FILTER.includes(x.name))
+    .map(x => x.toString());
+
+const REACTIONS = [...EMOIJIS, ...CUSTOM_EMOJIS];
 
 function getWordPostingRate(mode: WordRate): number {
     switch (mode) {
