@@ -92,12 +92,12 @@ export async function sendComicVote() {
                 { name: comicObj1.displayName, value: comic1Score.toString(), inline: true },
                 { name: comicObj2.displayName, value: comic2Score.toString(), inline: true },
                 { name: ' ', value: ' ', inline: false },
-                { name: ' ', value: ' ', inline: false },
                 {
-                    name: format('Scoreboard', { bold: true, underline: true }), value: `
-                ${format(comicObj1.displayName, { bold: true })}: ${comic1}
-                ${format(comicObj2.displayName, { bold: true })}: ${comic2}
-                ${format('Ties', { bold: true })}: ${ties}
+                    name: format('Scoreboard', { bold: true, underline: true }),
+                    value: `
+${format(comicObj1.displayName, { bold: true })}: ${comic1}
+${format(comicObj2.displayName, { bold: true })}: ${comic2}
+${format('Ties', { bold: true })}: ${ties}
                 ` },
             ]);
 
