@@ -19,6 +19,7 @@ export async function chat({ userId, channel, message, wordsToUse, imageUrl = ''
     imageUrl?: string
 }): Promise<void> {
     const identity = `${client.ChatTheme ?? ''}
+    Do not repeat your identity in your responses.
     You must fit the following space-separated words and links into your response, work them in to the sentence naturally, use them all even if they are nonsensical:
     ${wordsToUse}
     `;
