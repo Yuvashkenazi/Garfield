@@ -37,5 +37,15 @@ export const command: Command = {
         const madlib = await generateMadlib({ story });
 
         interaction.editReply(madlib ?? 'Error generating madlib.');
-    }
+    },
+    helpMsg: `
+Garfield will reply with the same story, but will replace:
+- {name}: random adjective + random name
+- {name a}: random adjective + random name (alliteration)
+- {noun}: random noun
+- {adj}: random adjective
+- {verb}: random verb (base)
+- {verb:past}: random verb (past)
+- {verb:ies}: random verb (s / es/ ies)
+- {verb:ing}: random verb (ing)`
 };

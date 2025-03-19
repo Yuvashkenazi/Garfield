@@ -9,4 +9,5 @@ interface CommandParams {
 export interface Command {
     data: SlashCommandOptionsOnlyBuilder;
     execute: (params: CommandParams) => Promise<void>;
+    helpMsg?: string;
 }

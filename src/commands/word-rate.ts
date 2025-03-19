@@ -34,5 +34,12 @@ export const command: Command = {
 
             interaction.reply(`Word rate changed to ${format(rate.name, { bold: true })}`);
         }
-    }
+    },
+    helpMsg: `
+Set the rate at which garfield repeats back learned words. Options are:
+- {n}: Normal
+- {f}: Fast
+- {s}: Slow
+
+Leave rate blank to check current rate.`
 };

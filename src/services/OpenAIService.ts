@@ -32,7 +32,7 @@ export async function chat({ userId, channel, message, wordsToUse, imageUrl = ''
     }
 
     const chatCompletion = await openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
             { role: 'system', content: identity },
             { role: 'user', content }

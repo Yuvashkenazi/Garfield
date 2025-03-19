@@ -75,7 +75,7 @@ export function list(arr: string[]): string {
     return arr.reduce((acc, curr) => acc += `- ${curr}\n`, '');
 }
 
-export function paginate(str: string): string[] {
+export function paginate(str: string, delimiter?: string): string[] {
     if (str.length <= PAGINATION_BREAKPOING) return [str];
 
     const pageSize = Math.ceil(str.length / (PAGINATION_BREAKPOING));
@@ -83,21 +83,30 @@ export function paginate(str: string): string[] {
     const addPageNumber: (current: number, max: number) => string =
         (current, max) => `\n**${current}/${max}**`;
 
-    const parts = chunkString(str, PAGINATION_BREAKPOING)
+    const parts = chunkString(str, PAGINATION_BREAKPOING, delimiter)
         .map((x, i) => x.concat(addPageNumber(i + 1, pageSize)));
 
     return parts;
 }
 
-function chunkString(str: string, chunkSize: number): string[] {
+function chunkString(str: string, chunkSize: number, delimiter?: string): string[] {
     const chunks = [];
     while (str) {
         if (str.length < chunkSize) {
             chunks.push(str);
             break;
         } else {
-            chunks.push(str.substring(0, chunkSize));
-            str = str.substring(chunkSize);
+            const rawChunk = str.substring(0, chunkSize);
+            const lastSpace = rawChunk.lastIndexOf(' ');
+            const lastNewline = rawChunk.lastIndexOf('\n');
+            const lastDelimiter = delimiter ? rawChunk.lastIndexOf(delimiter) : -1;
+
+            const lastSpaceOrNewline = Math.max(lastSpace, lastNewline);
+            const chunkEnd = lastDelimiter !== -1 ? lastDelimiter :
+                (lastSpaceOrNewline === -1 ? chunkSize : lastSpaceOrNewline);
+
+            chunks.push(str.substring(0, chunkEnd));
+            str = str.substring(chunkEnd);
         }
     }
 

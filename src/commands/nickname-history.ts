@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { getNicknames } from '../repository/NicknameRepo.js';
-import { list } from '../utils/Common.js';
+import { list, paginate } from '../utils/Common.js';
 
 export const command: Command = {
     data: new SlashCommandBuilder()
@@ -26,6 +26,15 @@ export const command: Command = {
             'No nicknames found in the database.' :
             list([...nicknameSet]);
 
-        interaction.editReply(response);
+        const paginated = paginate(response, '-');
+
+        for (const [indx, page] of paginated.entries()) {
+            if (indx === 0) {
+                await interaction.editReply(page);
+            } else {
+                await interaction.followUp(page);
+            }
+        }
+
     }
 };
