@@ -20,11 +20,17 @@ export const command: Command = {
 
         const nicknames = await getNicknames({ userId: user.id });
 
-        const nicknameSet = new Set<string>(nicknames.map(x => x.nickname));
+        const nicknameMap = new Map<string, number>(nicknames.map(x => [x.nickname, x.dateSet]));
+
+        const displayArray = [];
+        nicknameMap.forEach((val, key) => {
+            const date = new Date(val);
+            displayArray.push(`${date.toLocaleDateString('en-US', { year: '2-digit', month: "2-digit", day: '2-digit' })} | ${key}`);
+        });
 
         const response = nicknames.length === 0 ?
             'No nicknames found in the database.' :
-            list([...nicknameSet]);
+            list(displayArray);
 
         const paginated = paginate(response, '-');
 
