@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { getNicknames } from '../repository/NicknameRepo.js';
-import { list, paginate } from '../utils/Common.js';
+import { format, list, paginate } from '../utils/Common.js';
 
 export const command: Command = {
     data: new SlashCommandBuilder()
@@ -16,16 +16,21 @@ export const command: Command = {
 
         await interaction.deferReply();
 
-        if (!user) user = interaction.user
+        if (!user) user = interaction.user;
 
         const nicknames = await getNicknames({ userId: user.id });
 
-        const nicknameMap = new Map<string, number>(nicknames.map(x => [x.nickname, x.dateSet]));
+        const nicknameMap = nicknames.map((x, i) => ({
+            nickname: x.nickname,
+            dateSet: x.dateSet,
+            duration: i === nicknames.length - 1
+                ? "Current"
+                : `${Math.ceil((nicknames[i + 1].dateSet - x.dateSet) / (1000 * 60 * 60 * 24))} days`
+        }));
 
-        const displayArray = [];
-        nicknameMap.forEach((val, key) => {
-            const date = new Date(val);
-            displayArray.push(`${date.toLocaleDateString('en-US', { year: '2-digit', month: "2-digit", day: '2-digit' })} | ${key}`);
+        const displayArray = nicknameMap.map(({ nickname, dateSet, duration }) => {
+            const date = new Date(dateSet);
+            return `${date.toLocaleDateString('en-US', { year: '2-digit', month: "2-digit", day: '2-digit' })}: ${format(nickname, { bold: true })} (${duration})`;
         });
 
         const response = nicknames.length === 0 ?
