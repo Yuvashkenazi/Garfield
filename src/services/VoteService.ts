@@ -1,5 +1,5 @@
 import { client } from "../index.js";
-import { TextChannel, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { TextChannel, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import { getVotes, updateNames, updateScore } from "../repository/VotesRepo.js";
 import { groupBy, format } from "../utils/Common.js";
 import { getComicObj } from "./ComicService.js";
@@ -38,10 +38,10 @@ export async function sendComicVote() {
         const { customId } = interaction;
 
         if (customId === 'comic1')
-            await interaction.reply({ content: `You voted for ${comicObj1.displayName}.`, ephemeral: true });
+            await interaction.reply({ content: `You voted for ${comicObj1.displayName}.`, flags: MessageFlags.Ephemeral });
 
         if (customId === 'comic2')
-            await interaction.reply({ content: `You voted for ${comicObj2.displayName}.`, ephemeral: true });
+            await interaction.reply({ content: `You voted for ${comicObj2.displayName}.`, flags: MessageFlags.Ephemeral });
     });
 
     collector.on('end', async (interaction) => {

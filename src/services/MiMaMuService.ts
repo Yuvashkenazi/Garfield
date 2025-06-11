@@ -8,7 +8,8 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     ButtonInteraction,
-    ModalSubmitInteraction
+    ModalSubmitInteraction,
+    MessageFlags
 } from "discord.js";
 import { v4 as uuid } from 'uuid';
 import { exists, getFilePath, readDir, deleteDir, join, mkdir } from '../repository/FileRepo.js';
@@ -188,11 +189,11 @@ export async function addMiMaMuPrompt({ interaction, answer, options }: { intera
     const allowed = await isCreationAllowed();
 
     if (!allowed) {
-        await interaction.reply({ ephemeral: true, content: 'The server\'s prompt limit has been reached. Try again tomorrow!' });
+        await interaction.reply({ content: 'The server\'s prompt limit has been reached. Try again tomorrow!', flags: MessageFlags.Ephemeral });
         return;
     }
 
-    await interaction.reply({ ephemeral: true, content: 'Your request has been accepted. You will receive a DM to complete your prompt shortly.' });
+    await interaction.reply({ content: 'Your request has been accepted. You will receive a DM to complete your prompt shortly.', flags: MessageFlags.Ephemeral });
 
     if (options.style === MiMaMuStyles.DALLE3) {
         await imagineDallE({ answer, user: interaction.user });
@@ -447,7 +448,7 @@ export async function handleGuessBtn(interaction: ButtonInteraction) {
 
         const response = await guessMiMaMu({ userId: interaction.user.id, guess });
 
-        interaction.followUp({ ephemeral: true, content: response });
+        interaction.followUp({ content: response, flags: MessageFlags.Ephemeral });
     }
 }
 
@@ -466,5 +467,5 @@ export async function handleShowPromptBtn(interaction: ButtonInteraction) {
 
     const currentUserPrompt = getUpdatedUserPrompt({ prompt, answer, guesses: pastAnswers });
 
-    interaction.reply({ ephemeral: true, content: format(currentUserPrompt, { bold: true }) });
+    interaction.reply({ content: format(currentUserPrompt, { bold: true }), flags: MessageFlags.Ephemeral });
 }

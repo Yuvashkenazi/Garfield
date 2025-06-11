@@ -28,9 +28,9 @@ export const command: Command = {
 
             interaction.reply(`Word rate is set to: ${format(rate.name, { bold: true })}`);
         } else {
-            await setWordRate({ rate: WordRate[choice] });
-
             const rate = choices.find(x => x.value === choice);
+
+            await setWordRate({ rate: rate.value });
 
             interaction.reply(`Word rate changed to ${format(rate.name, { bold: true })}`);
         }

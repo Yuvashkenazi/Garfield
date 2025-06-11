@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { Command } from "../types/Command.js";
 import { guessMiMaMu } from '../services/MiMaMuService.js';
 
@@ -15,7 +15,7 @@ export const command: Command = {
     async execute({ interaction }: { interaction: ChatInputCommandInteraction }) {
         const guess = interaction.options.getString('guess');
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const response = await guessMiMaMu({ userId: interaction.user.id, guess });
 

@@ -1,4 +1,4 @@
-import { ButtonInteraction, Events } from 'discord.js';
+import { ButtonInteraction, Events, MessageFlags } from 'discord.js';
 import { Event, InteractionCreateParams } from '../types/Event.js';
 import { customIds } from '../components/mimamu/index.js';
 import { handleGuessBtn, handleShowPromptBtn } from '../services/MiMaMuService.js';
@@ -30,7 +30,7 @@ export const event: Event = {
             const errorMsg = 'There was an error while executing this command!';
 
             !interaction.replied ?
-                await interaction.reply({ ephemeral: true, content: errorMsg }) :
+                await interaction.reply({ content: errorMsg, flags: MessageFlags.Ephemeral }) :
                 await interaction.editReply({ content: errorMsg });
         }
     },
