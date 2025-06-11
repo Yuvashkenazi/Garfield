@@ -55,7 +55,8 @@ const CUSTOM_EMOJIS = client.emojis.cache
 
 const REACTIONS = [...EMOJIS, ...CUSTOM_EMOJIS];
 
-function getWordPostingRate(mode: WordRate): number {
+function getWordPostingRate(mode: string): number {
+    console.log(mode);
     switch (mode) {
         case WordRate.NORMAL:
             return WORD_RATE_NORMAL;
@@ -67,7 +68,7 @@ function getWordPostingRate(mode: WordRate): number {
     }
 }
 
-function getReactionPostingRate(mode: ReactionRate): number {
+function getReactionPostingRate(mode: string): number {
     switch (mode) {
         case ReactionRate.NORMAL:
             return REACTION_RATE_NORMAL;
@@ -81,7 +82,7 @@ function getReactionPostingRate(mode: ReactionRate): number {
 
 const getRandomReaction = (): string => REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
 
-export function randomReactionToMsg(msg: Message, mode: ReactionRate) {
+export function randomReactionToMsg(msg: Message, mode: string) {
     const reaction = getRandomReaction();
 
     if (mode === ReactionRate.FAST) {
@@ -95,7 +96,7 @@ export function randomReactionToMsg(msg: Message, mode: ReactionRate) {
 }
 
 export async function sendWord(ch: TextChannel): Promise<void> {
-    const rate = getWordPostingRate(WordRate[client.wordRate]);
+    const rate = getWordPostingRate(client.wordRate);
 
     if (!rate || !postCheck(rate)) {
         return;

@@ -29,9 +29,9 @@ export const command: Command = {
 
             interaction.reply(`Reaction rate is set to: ${format(rate.name, { bold: true })}`);
         } else {
-            await setReactionRate({ rate: ReactionRate[choice] })
-
             const rate = choices.find(x => x.value === choice);
+
+            await setReactionRate({ rate: rate.value });
 
             interaction.reply(`Reaction rate changed to ${format(rate.name, { bold: true })}`);
         }
