@@ -6,7 +6,7 @@ import { WordRate } from "../constants/WordRate.js";
 import { ReactionRate } from "../constants/ReactionRate.js";
 
 //sentences are constructed by repeatedly rolling a number between 0 and 1 and adding a word each time, until the number rolled is greater than NEXT_WORD_CHANCE
-const NEXT_WORD_CHANCE = 0.875;
+const NEXT_WORD_CHANCE = 0.89;
 const MESSAGE_LENGTH_LIMIT = 2000;
 
 //every minute has 1 over [rate] chance of sending a message. fast will send a message every minute
@@ -132,7 +132,7 @@ export async function generateSentence(): Promise<string> {
     let sentence = '';
 
     //have a chance of starting a message with a #, which will make the message text display larger within discord
-    if(Math.random() < 0.5){
+    if(Math.random() < 0.25){
         sentence += '# ';
     }
     
