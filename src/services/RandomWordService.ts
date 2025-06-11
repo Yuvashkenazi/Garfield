@@ -43,7 +43,8 @@ const CUSTOM_EMOJIS = client.emojis.cache
 
 const REACTIONS = [...EMOIJIS, ...CUSTOM_EMOJIS];
 
-function getWordPostingRate(mode: WordRate): number {
+function getWordPostingRate(mode: string): number {
+    console.log(mode);
     switch (mode) {
         case WordRate.NORMAL:
             return WORD_RATE_NORMAL;
@@ -83,7 +84,7 @@ export function randomReactionToMsg(msg: Message, mode: ReactionRate) {
 }
 
 export async function sendWord(ch: TextChannel): Promise<void> {
-    const rate = getWordPostingRate(WordRate[client.wordRate]);
+    const rate = getWordPostingRate(client.wordRate);
 
     if (!rate || !postCheck(rate)) {
         return;
