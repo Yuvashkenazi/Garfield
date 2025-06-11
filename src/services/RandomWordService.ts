@@ -56,7 +56,7 @@ function getWordPostingRate(mode: string): number {
     }
 }
 
-function getReactionPostingRate(mode: ReactionRate): number {
+function getReactionPostingRate(mode: string): number {
     switch (mode) {
         case ReactionRate.NORMAL:
             return REACTION_RATE_NORMAL;
@@ -70,7 +70,7 @@ function getReactionPostingRate(mode: ReactionRate): number {
 
 const getRandomReaction = (): string => REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
 
-export function randomReactionToMsg(msg: Message, mode: ReactionRate) {
+export function randomReactionToMsg(msg: Message, mode: string) {
     const reaction = getRandomReaction();
 
     if (mode === ReactionRate.FAST) {
