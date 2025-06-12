@@ -56,7 +56,6 @@ const CUSTOM_EMOJIS = [
 const REACTIONS = [...EMOJIS, ...CUSTOM_EMOJIS];
 
 function getWordPostingRate(mode: string): number {
-    console.log(mode);
     switch (mode) {
         case WordRate.NORMAL:
             return WORD_RATE_NORMAL;
