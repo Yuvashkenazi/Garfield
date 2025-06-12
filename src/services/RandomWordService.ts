@@ -20,7 +20,7 @@ const REACTION_RATE_NORMAL = 0.25;
 
 const EMOJIS = ['👍', '💯', '🤣', '😉', '🙃', '🤢', '🤬', '🖕', '😲', '🤔', '🥺', '💀', '🇬🇧'];
 
-const CUSTOM_EMOJI_NAME_FILTER = [
+const CUSTOM_EMOJIS = [
     '1052770092997427270', //lksquare
     '658032150511222785', //BIG
     '1351700364415602739', //ICANT
@@ -49,9 +49,9 @@ const CUSTOM_EMOJI_NAME_FILTER = [
     '1096510664043929741', //yuvalok2
 ];
 
-const CUSTOM_EMOJIS = client.emojis.cache
+/*const CUSTOM_EMOJIS = client.emojis.cache
     .filter(x => CUSTOM_EMOJI_NAME_FILTER.includes(x.name))
-    .map(x => x.toString());
+    .map(x => x.toString());*/
 
 const REACTIONS = [...EMOJIS, ...CUSTOM_EMOJIS];
 
